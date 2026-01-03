@@ -42,6 +42,7 @@ class PrintingManager(private val context: Context) {
     }
 
     private class TicketPrintDocumentAdapter(private val context: Context, private val ticket: ParkingTicket) : PrintDocumentAdapter() {
+
         private var pageHeight: Int = 0
         private var pageWidth: Int = 0
 
@@ -99,6 +100,7 @@ class PrintingManager(private val context: Context) {
             val heightSpec = View.MeasureSpec.makeMeasureSpec(pageHeight, View.MeasureSpec.EXACTLY)
             view.measure(widthSpec, heightSpec)
             view.layout(0, 0, pageWidth, pageHeight)
+
             view.draw(page.canvas)
 
             pdfDocument.finishPage(page)
@@ -125,14 +127,15 @@ class PrintingManager(private val context: Context) {
             val printedAtTextView: TextView = view.findViewById(R.id.printed_at_text_view)
             val imprintTextView: TextView = view.findViewById(R.id.imprint_text_view)
 
-            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+            val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
             val title = settingsManager.welcomeMessageHeading
             ticketTitleTextView.text = if (!title.isNullOrBlank()) title else context.getString(R.string.ticket_title)
             
             licensePlateTextView.text = context.getString(R.string.ticket_label_license_plate, ticket.licensePlate)
-            timestampTextView.text = context.getString(R.string.ticket_label_time, sdf.format(ticket.timestamp))
-            printedAtTextView.text = context.getString(R.string.ticket_label_printed_at, sdf.format(Date()))
+            timestampTextView.text = context.getString(R.string.ticket_label_time, sdfDate.format(ticket.timestamp))
+            printedAtTextView.text = context.getString(R.string.ticket_label_printed_at, sdfTime.format(Date()))
 
             val imprintText = settingsManager.imprintText
             if (!imprintText.isNullOrBlank()) {
@@ -142,7 +145,7 @@ class PrintingManager(private val context: Context) {
 
             try {
                 val multiFormatWriter = MultiFormatWriter()
-                val bitMatrix = multiFormatWriter.encode(ticket.licensePlate, BarcodeFormat.QR_CODE, 120, 120)
+                val bitMatrix = multiFormatWriter.encode(ticket.guid, BarcodeFormat.QR_CODE, 120, 120)
                 val barcodeEncoder = BarcodeEncoder()
                 val bitmap: Bitmap = barcodeEncoder.createBitmap(bitMatrix)
                 qrCodeImageView.setImageBitmap(bitmap)

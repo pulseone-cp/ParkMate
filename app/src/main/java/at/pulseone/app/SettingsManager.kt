@@ -20,7 +20,7 @@ class SettingsManager(context: Context) {
         set(value) = sharedPreferences.edit().putStringSet("departments", value).apply()
 
     var defaultDepartment: String?
-        get() = sharedPreferences.getString("default_department", "Sales") // Set a default value
+        get() = sharedPreferences.getString("default_department", "Sales")
         set(value) = sharedPreferences.edit().putString("default_department", value).apply()
 
     var imprintText: String?
@@ -34,4 +34,8 @@ class SettingsManager(context: Context) {
     var welcomeMessageBody: String?
         get() = sharedPreferences.getString("welcome_body", null)
         set(value) = sharedPreferences.edit().putString("welcome_body", value).apply()
+
+    var ticketValidityDays: Int
+        get() = sharedPreferences.getInt("ticket_validity_days", 1)
+        set(value) = sharedPreferences.edit().putInt("ticket_validity_days", value).apply()
 }

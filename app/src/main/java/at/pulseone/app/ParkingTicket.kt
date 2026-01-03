@@ -3,6 +3,7 @@ package at.pulseone.app
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
+import java.util.UUID
 
 @Entity(tableName = "parking_tickets")
 data class ParkingTicket(
@@ -12,5 +13,6 @@ data class ParkingTicket(
     val surname: String,
     val licensePlate: String,
     val department: String,
-    val timestamp: Date
+    val timestamp: Date,
+    val guid: String = UUID.randomUUID().toString()
 )

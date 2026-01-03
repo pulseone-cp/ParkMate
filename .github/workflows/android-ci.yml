@@ -1,9 +1,10 @@
-name: Android Release
+name: Android CI
 
 on:
   push:
-    tags:
-      - 'v*.*.*' # Trigger on tags like v1.0.0
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -18,37 +19,16 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Decode Keystore
-        id: decode_keystore
-        uses: timheuer/base64-to-file@v1.2
+      - name: Build and run tests with Gradle
+        run: ./gradlew build
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
         with:
-          fileName: 'release.jks'
-          encodedString: ${{ secrets.KEYSTORE_BASE64 }}
-
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-        env:
-          KEYSTORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Get Tag Name
-        id: get_tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
-      - name: Rename APK
-        run: mv app/build/outputs/apk/release/app-release.apk ParkMate-${{ env.TAG_NAME }}.apk
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.TAG_NAME }}
-          name: Release ${{ env.TAG_NAME }}
-          files: ParkMate-${{ env.TAG_NAME }}.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: parkmate-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk

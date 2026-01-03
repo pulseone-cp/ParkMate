@@ -11,10 +11,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class AdminActivity : AppCompatActivity() {
 
     private val historyFragment = HistoryFragment()
-    private val usersFragment = UsersFragment()
+    private val validateFragment = ValidateFragment()
     private val printingFragment = PrintingFragment()
     private val departmentsFragment = DepartmentsFragment()
-    private val displayFragment = DisplayFragment()
+    private val settingsFragment = SettingsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,13 +24,13 @@ class AdminActivity : AppCompatActivity() {
 
         setCurrentFragment(historyFragment)
 
-        bottomNavigation.setOnNavigationItemSelectedListener {
+        bottomNavigation.setOnItemSelectedListener { // Use the modern listener
             when (it.itemId) {
                 R.id.nav_history -> setCurrentFragment(historyFragment)
-                R.id.nav_users -> setCurrentFragment(usersFragment)
+                R.id.nav_validate -> setCurrentFragment(validateFragment)
                 R.id.nav_printing -> setCurrentFragment(printingFragment)
                 R.id.nav_departments -> setCurrentFragment(departmentsFragment)
-                R.id.nav_display -> setCurrentFragment(displayFragment)
+                R.id.nav_settings -> setCurrentFragment(settingsFragment)
             }
             true
         }

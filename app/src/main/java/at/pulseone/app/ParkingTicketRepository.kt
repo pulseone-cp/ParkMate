@@ -17,4 +17,8 @@ class ParkingTicketRepository(application: Application) {
     suspend fun searchTickets(query: String): List<ParkingTicket> {
         return parkingTicketDao.search("%" + query + "%")
     }
+
+    suspend fun findTicketByGuid(guid: String): ParkingTicket? {
+        return parkingTicketDao.findByGuid(guid)
+    }
 }

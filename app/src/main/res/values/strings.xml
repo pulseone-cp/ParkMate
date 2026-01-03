@@ -65,6 +65,6 @@
     <string name="ticket_title">Parking Ticket</string>
     <string name="ticket_label_license_plate">%1$s</string>
     <string name="ticket_label_time">%1$s</string>
-    <string name="ticket_label_printed_at">Printed at: %1$s</string>
+    <string name="ticket_label_printed_at">Printed at %1$s</string>
 
 </resources>

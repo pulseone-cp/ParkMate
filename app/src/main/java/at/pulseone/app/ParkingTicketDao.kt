@@ -15,4 +15,7 @@ interface ParkingTicketDao {
 
     @Query("SELECT * FROM parking_tickets WHERE name LIKE :query OR surname LIKE :query OR licensePlate LIKE :query ORDER BY timestamp DESC")
     suspend fun search(query: String): List<ParkingTicket>
+
+    @Query("SELECT * FROM parking_tickets WHERE guid = :guid")
+    suspend fun findByGuid(guid: String): ParkingTicket?
 }
