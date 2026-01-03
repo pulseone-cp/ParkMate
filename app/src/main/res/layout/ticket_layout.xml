@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="57px"
+    android:paddingBottom="57px"
+    android:paddingLeft="10px"
+    android:paddingRight="10px">
+
+    <TextView
+        android:id="@+id/ticket_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        android:layout_marginBottom="50px" />
+
+    <TextView
+        android:id="@+id/ticket_license_plate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:typeface="monospace"
+        android:textStyle="bold"
+        android:layout_marginBottom="50px" />
+
+    <TextView
+        android:id="@+id/ticket_timestamp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:typeface="monospace"
+        android:layout_marginBottom="50px" />
+
+    <ImageView
+        android:id="@+id/qr_code_image_view"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="50px" />
+
+    <TextView
+        android:id="@+id/printed_at_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:layout_marginBottom="50px" />
+
+    <TextView
+        android:id="@+id/imprint_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:visibility="gone" />
+
+</LinearLayout>

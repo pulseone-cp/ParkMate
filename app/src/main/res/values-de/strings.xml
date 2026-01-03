@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ParkMate</string>
+
+    <!-- MainActivity -->
+    <string name="hint_name">Vorname</string>
+    <string name="hint_surname">Nachname</string>
+    <string name="hint_license_plate">Kennzeichen</string>
+    <string name="hint_department">Abteilung</string>
+    <string name="button_confirm_print">Bestätigen und Ticket drucken</string>
+    <string name="button_test_print">Testdruck</string>
+    <string name="admin_access_title">Admin-Zugang</string>
+    <string name="toast_fill_all_fields">Bitte füllen Sie alle Felder aus</string>
+    <string name="toast_incorrect_password">Falsches Passwort</string>
+    <string name="action_admin">Administrator</string>
+
+    <!-- Admin Menu -->
+    <string name="admin_title_history">Verlauf</string>
+    <string name="admin_title_users">Benutzer</string>
+    <string name="admin_title_printing">Drucken</string>
+    <string name="admin_title_departments">Abteilungen</string>
+    <string name="admin_title_display">Anzeige</string>
+    <string name="admin_exit">Admin-Menü verlassen</string>
+
+    <!-- Departments Admin -->
+    <string name="hint_new_department">Neue Abteilung</string>
+    <string name="button_add_department">Hinzufügen</string>
+    <string name="button_remove">Entfernen</string>
+    <string name="button_set_default">Als Standard festlegen</string>
+    <string name="text_default">Standard</string>
+    <string name="toast_department_removed">%1$s entfernt</string>
+    <string name="toast_department_set_default">%1$s als Standard festgelegt</string>
+
+    <!-- Display Admin -->
+    <string name="hint_welcome_heading">Willkommensnachricht Überschrift</string>
+    <string name="hint_welcome_body">Willkommensnachricht Text</string>
+    <string name="button_save_welcome_message">Willkommensnachricht speichern</string>
+    <string name="toast_welcome_message_saved">Willkommensnachricht gespeichert</string>
+
+    <!-- History Admin -->
+    <string name="hint_search_history">Suche nach Name, Nachname oder Kennzeichen</string>
+    <string name="action_export">Exportieren</string>
+    <string name="toast_no_history_to_export">Kein Verlauf zum Exportieren vorhanden</string>
+    <string name="toast_error_exporting_history">Fehler beim Exportieren des Verlaufs</string>
+    <string name="share_history_title">Verlauf exportieren</string>
+    <string name="ticket_timestamp_label">Zeitstempel</string>
+
+    <!-- Printing Admin -->
+    <string name="button_set_default_printer">Als Standarddrucker festlegen</string>
+    <string name="hint_custom_imprint">Benutzerdefinierter Ticket-Aufdruck</string>
+    <string name="button_save_imprint">Aufdruck speichern</string>
+    <string name="toast_imprint_saved">Aufdrucktext gespeichert</string>
+    <string name="toast_printer_set_default">%1$s als Standarddrucker festgelegt</string>
+
+    <!-- Users Admin -->
+    <string name="hint_current_pin">Aktueller PIN</string>
+    <string name="hint_new_pin">Neuer PIN</string>
+    <string name="hint_confirm_new_pin">Neuen PIN bestätigen</string>
+    <string name="button_change_pin">PIN ändern</string>
+    <string name="toast_pin_changed">PIN erfolgreich geändert</string>
+    <string name="toast_pin_not_match">Neue PINs stimmen nicht überein oder sind leer</string>
+    <string name="toast_incorrect_current_pin">Falscher aktueller PIN</string>
+
+    <!-- Printed Ticket -->
+    <string name="ticket_title">Parkticket</string>
+    <string name="ticket_label_license_plate">%1$s</string>
+    <string name="ticket_label_time">%1$s</string>
+    <string name="ticket_label_printed_at">Gedruckt am: %1$s</string>
+
+</resources>
