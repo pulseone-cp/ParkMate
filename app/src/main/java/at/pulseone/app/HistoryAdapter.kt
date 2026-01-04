@@ -1,12 +1,15 @@
 package at.pulseone.app
 
+import android.app.Application
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +30,7 @@ class HistoryAdapter(
         val viewButton: Button = itemView.findViewById(R.id.view_button)
         val printButton: Button = itemView.findViewById(R.id.print_button)
         val reportedIcon: ImageView = itemView.findViewById(R.id.reported_icon)
+        val uploadButton: ImageButton = itemView.findViewById(R.id.upload_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -55,10 +59,38 @@ class HistoryAdapter(
             }
         }
 
+        val settingsManager = SettingsManager(holder.itemView.context)
+
         if (ticket.isReported) {
             holder.reportedIcon.visibility = View.VISIBLE
+            holder.uploadButton.visibility = View.GONE
         } else {
             holder.reportedIcon.visibility = View.GONE
+            if (settingsManager.liveAuditEnabled) {
+                holder.uploadButton.visibility = View.VISIBLE
+            }
+        }
+
+        holder.uploadButton.setOnClickListener {
+            holder.itemView.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+                val auditManager = AuditManager()
+                val endpointUrl = settingsManager.liveAuditEndpoint
+                if (!endpointUrl.isNullOrBlank()) {
+                    val success = auditManager.reportTicket(ticket, endpointUrl)
+                    if (success) {
+                        val repository = ParkingTicketRepository(holder.itemView.context.applicationContext as Application)
+                        val updatedTicket = ticket.copy(isReported = true)
+                        repository.updateTicket(updatedTicket)
+                        tickets[position] = updatedTicket
+                        notifyItemChanged(position)
+                        Toast.makeText(holder.itemView.context, "Ticket reported successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(holder.itemView.context, "Failed to report ticket", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(holder.itemView.context, "Live audit endpoint not set", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

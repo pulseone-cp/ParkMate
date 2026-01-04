@@ -134,7 +134,12 @@ class MainActivity : AppCompatActivity() {
 
         val randomName = listOf("John", "Jane", "Peter", "Mary", "Chris", "Sarah").random()
         val randomSurname = listOf("Smith", "Doe", "Jones", "Williams", "Brown", "Davis").random()
-        val randomLicense = "${('A'..'Z').shuffled().take(3).joinToString("")}-${Random.nextInt(100, 9999)}"
+        val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        val randomLicense = (1..8)
+            .map { allowedChars.random() }
+            .joinToString("")
+            .chunked(4)
+            .joinToString("-")
         val randomDepartment = departments.random()
 
         lifecycleScope.launch {

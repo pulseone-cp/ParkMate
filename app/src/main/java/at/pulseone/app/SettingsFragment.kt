@@ -17,6 +17,7 @@ class SettingsFragment : Fragment() {
 
         val usersButton: Button = view.findViewById(R.id.users_button)
         val displayButton: Button = view.findViewById(R.id.display_button)
+        val liveAuditButton: Button = view.findViewById(R.id.live_audit_button)
 
         usersButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -28,6 +29,13 @@ class SettingsFragment : Fragment() {
         displayButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, DisplayFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        liveAuditButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, LiveAuditFragment())
                 .addToBackStack(null)
                 .commit()
         }
