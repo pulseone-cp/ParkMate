@@ -1,6 +1,6 @@
 package at.pulseone.app
 
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStreamWriter
@@ -18,7 +18,9 @@ class AuditManager {
                 connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
                 connection.doOutput = true
 
-                val gson = Gson()
+                val gson = GsonBuilder()
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .create()
                 val jsonPayload = gson.toJson(ticket)
 
                 val writer = OutputStreamWriter(connection.outputStream)

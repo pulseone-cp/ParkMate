@@ -9,7 +9,7 @@ import androidx.room.Update
 interface ParkingTicketDao {
 
     @Insert
-    suspend fun insert(ticket: ParkingTicket)
+    suspend fun insert(ticket: ParkingTicket): Long
 
     @Update
     suspend fun update(ticket: ParkingTicket)

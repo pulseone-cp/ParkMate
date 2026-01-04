@@ -74,13 +74,13 @@ class MainActivity : AppCompatActivity() {
             if (name.isNotBlank() && surname.isNotBlank() && licensePlate.isNotBlank() && department.isNotBlank()) {
                 lifecycleScope.launch {
                     val ticket = ParkingTicket(name = name, surname = surname, licensePlate = licensePlate, department = department, timestamp = Date())
-                    repository.addTicket(ticket)
-                    printingManager.printTicket(ticket)
+                    val newTicket = repository.addTicket(ticket)
+                    printingManager.printTicket(newTicket)
 
                     if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
-                        val success = auditManager.reportTicket(ticket, settingsManager.liveAuditEndpoint!!)
+                        val success = auditManager.reportTicket(newTicket, settingsManager.liveAuditEndpoint!!)
                         if (success) {
-                            repository.updateTicket(ticket.copy(isReported = true))
+                            repository.updateTicket(newTicket.copy(isReported = true))
                         }
                     }
 
@@ -88,7 +88,11 @@ class MainActivity : AppCompatActivity() {
                     nameEditText.text?.clear()
                     surnameEditText.text?.clear()
                     licensePlateEditText.text?.clear()
-                    departmentAutoComplete.text?.clear()
+                    if (defaultDepartment != null && departments.contains(defaultDepartment)) {
+                        departmentAutoComplete.setText(defaultDepartment, false)
+                    } else {
+                        departmentAutoComplete.text?.clear()
+                    }
                 }
             } else {
                 Toast.makeText(this, R.string.toast_fill_all_fields, Toast.LENGTH_SHORT).show()
@@ -96,7 +100,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         testPrintButton.setOnClickListener {
-            generateAndPrintRandomTicket(departments)
+            if (departments.isEmpty()) {
+                Toast.makeText(this, "Please add a department first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val randomName = listOf("John", "Jane", "Peter", "Mary", "Chris", "Sarah").random()
+            val randomSurname = listOf("Smith", "Doe", "Jones", "Williams", "Brown", "Davis").random()
+            val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            val randomLicense = (1..8)
+                .map { allowedChars.random() }
+                .joinToString("")
+                .chunked(4)
+                .joinToString("-")
+            val randomDepartment = departments.random()
+
+            nameEditText.setText(randomName)
+            surnameEditText.setText(randomSurname)
+            licensePlateEditText.setText(randomLicense)
+            departmentAutoComplete.setText(randomDepartment, false)
+
+            confirmButton.performClick()
         }
     }
 
@@ -124,42 +148,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         licensePlateEditText.filters = arrayOf(filter, InputFilter.AllCaps())
-    }
-
-    private fun generateAndPrintRandomTicket(departments: List<String>) {
-        if (departments.isEmpty()) {
-            Toast.makeText(this, "Please add a department first", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val randomName = listOf("John", "Jane", "Peter", "Mary", "Chris", "Sarah").random()
-        val randomSurname = listOf("Smith", "Doe", "Jones", "Williams", "Brown", "Davis").random()
-        val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        val randomLicense = (1..8)
-            .map { allowedChars.random() }
-            .joinToString("")
-            .chunked(4)
-            .joinToString("-")
-        val randomDepartment = departments.random()
-
-        lifecycleScope.launch {
-            val ticket = ParkingTicket(
-                name = randomName,
-                surname = randomSurname,
-                licensePlate = randomLicense,
-                department = randomDepartment,
-                timestamp = Date()
-            )
-            repository.addTicket(ticket)
-            printingManager.printTicket(ticket)
-
-            if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
-                val success = auditManager.reportTicket(ticket, settingsManager.liveAuditEndpoint!!)
-                if (success) {
-                    repository.updateTicket(ticket.copy(isReported = true))
-                }
-            }
-        }
     }
 
     private fun loadWelcomeMessage() {
