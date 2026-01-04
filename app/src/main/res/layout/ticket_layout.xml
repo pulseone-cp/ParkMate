@@ -6,7 +6,8 @@
     android:paddingTop="57px"
     android:paddingBottom="57px"
     android:paddingLeft="10px"
-    android:paddingRight="10px">
+    android:paddingRight="10px"
+    android:background="@android:color/white">
 
     <TextView
         android:id="@+id/ticket_title"

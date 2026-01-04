@@ -42,6 +42,7 @@
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".TicketViewActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

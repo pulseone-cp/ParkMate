@@ -1,14 +1,21 @@
 package at.pulseone.app
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class HistoryAdapter(
     private val tickets: MutableList<ParkingTicket>,
-    private val onReprintClick: (ParkingTicket) -> Unit
 ) : RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -16,12 +23,8 @@ class HistoryAdapter(
         val nameTextView: TextView = itemView.findViewById(R.id.name_text_view)
         val departmentTextView: TextView = itemView.findViewById(R.id.department_text_view)
         val timestampTextView: TextView = itemView.findViewById(R.id.timestamp_text_view)
-
-        init {
-            itemView.setOnClickListener {
-                onReprintClick(tickets[adapterPosition])
-            }
-        }
+        val viewButton: Button = itemView.findViewById(R.id.view_button)
+        val printButton: Button = itemView.findViewById(R.id.print_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,7 +38,20 @@ class HistoryAdapter(
         holder.licensePlateTextView.text = ticket.licensePlate
         holder.nameTextView.text = "${ticket.name} ${ticket.surname}"
         holder.departmentTextView.text = ticket.department
-        holder.timestampTextView.text = ticket.timestamp.toString()
+        holder.timestampTextView.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(ticket.timestamp)
+
+        holder.viewButton.setOnClickListener {
+            val intent = Intent(holder.itemView.context, TicketViewActivity::class.java)
+            intent.putExtra("ticket_guid", ticket.guid)
+            holder.itemView.context.startActivity(intent)
+        }
+
+        holder.printButton.setOnClickListener {
+            holder.itemView.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+                val printingManager = PrintingManager(holder.itemView.context)
+                printingManager.printTicket(ticket)
+            }
+        }
     }
 
     override fun getItemCount() = tickets.size

@@ -1,12 +1,10 @@
 package at.pulseone.app
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,24 +13,46 @@ import org.junit.runner.RunWith
 class SettingsManagerTest {
 
     private lateinit var settingsManager: SettingsManager
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
+    private lateinit var context: Context
 
     @Before
     fun setup() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        sharedPreferences = context.getSharedPreferences("test_prefs", Context.MODE_PRIVATE)
-        editor = sharedPreferences.edit()
-        
-        val mockContext = mockk<Context>()
-        every { mockContext.getSharedPreferences(any(), any()) } returns sharedPreferences
+        context = ApplicationProvider.getApplicationContext()
+        // Use a unique name for the test preferences to avoid conflicts
+        settingsManager = SettingsManager(context)
+        // Clear any previous values
+        context.getSharedPreferences("ParkMateSettings", Context.MODE_PRIVATE).edit().clear().commit()
+    }
 
-        settingsManager = SettingsManager(mockContext)
+    @After
+    fun teardown() {
+        // Clean up the created preferences file
+        context.getSharedPreferences("ParkMateSettings", Context.MODE_PRIVATE).edit().clear().commit()
     }
 
     @Test
-    fun testAdminPin() {
-        settingsManager.adminPin = "4321"
-        assert(settingsManager.adminPin == "4321")
+    fun testAdminPin_isCorrectlySavedAndRead() {
+        // Arrange
+        val testPin = "9876"
+
+        // Act
+        settingsManager.adminPin = testPin
+        val retrievedPin = settingsManager.adminPin
+
+        // Assert
+        assertEquals(testPin, retrievedPin)
+    }
+
+    @Test
+    fun testDefaultDepartment_isCorrectlySavedAndRead() {
+        // Arrange
+        val testDepartment = "Finance"
+
+        // Act
+        settingsManager.defaultDepartment = testDepartment
+        val retrievedDepartment = settingsManager.defaultDepartment
+
+        // Assert
+        assertEquals(testDepartment, retrievedDepartment)
     }
 }

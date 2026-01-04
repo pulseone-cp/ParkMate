@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.view.ContextThemeWrapper
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
@@ -35,8 +36,7 @@ class PrintingManager(private val context: Context) {
             return
         }
 
-        val view = createTicketView(ticket)
-        val bitmap = createBitmapFromView(view)
+        val bitmap = createTicketBitmap(ticket)
 
         withContext(Dispatchers.IO) {
             try {
@@ -74,10 +74,22 @@ class PrintingManager(private val context: Context) {
         }
     }
 
-    private fun createTicketView(ticket: ParkingTicket): View {
-        val inflater = LayoutInflater.from(context)
+    fun createTicketBitmap(ticket: ParkingTicket): Bitmap {
+        val themedContext = ContextThemeWrapper(context, R.style.Theme_ParkMate_Print)
+        val inflater = LayoutInflater.from(themedContext)
         val view = inflater.inflate(R.layout.ticket_layout, null)
 
+        populateTicketView(view, ticket)
+
+        view.measure(View.MeasureSpec.makeMeasureSpec(PRINTER_WIDTH_PX, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
+
+    private fun populateTicketView(view: View, ticket: ParkingTicket) {
         val settingsManager = SettingsManager(context)
         val ticketTitleTextView: TextView = view.findViewById(R.id.ticket_title)
         val licensePlateTextView: TextView = view.findViewById(R.id.ticket_license_plate)
@@ -119,16 +131,6 @@ class PrintingManager(private val context: Context) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return view
-    }
-
-    private fun createBitmapFromView(view: View): Bitmap {
-        view.measure(View.MeasureSpec.makeMeasureSpec(PRINTER_WIDTH_PX, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
-        val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(bitmap)
-        view.draw(canvas)
-        return bitmap
     }
 }
 

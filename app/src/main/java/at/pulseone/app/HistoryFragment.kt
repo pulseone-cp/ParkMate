@@ -51,12 +51,7 @@ class HistoryFragment : Fragment() {
         historyRecyclerView = view.findViewById(R.id.history_recycler_view)
         historyRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        historyAdapter = HistoryAdapter(tickets) { ticket ->
-            // Reprint ticket
-            lifecycleScope.launch {
-                printingManager.printTicket(ticket)
-            }
-        }
+        historyAdapter = HistoryAdapter(tickets)
         historyRecyclerView.adapter = historyAdapter
 
         val searchBar: EditText = view.findViewById(R.id.search_bar)
