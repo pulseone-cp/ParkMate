@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -25,6 +26,7 @@ class HistoryAdapter(
         val timestampTextView: TextView = itemView.findViewById(R.id.timestamp_text_view)
         val viewButton: Button = itemView.findViewById(R.id.view_button)
         val printButton: Button = itemView.findViewById(R.id.print_button)
+        val reportedIcon: ImageView = itemView.findViewById(R.id.reported_icon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -51,6 +53,12 @@ class HistoryAdapter(
                 val printingManager = PrintingManager(holder.itemView.context)
                 printingManager.printTicket(ticket)
             }
+        }
+
+        if (ticket.isReported) {
+            holder.reportedIcon.visibility = View.VISIBLE
+        } else {
+            holder.reportedIcon.visibility = View.GONE
         }
     }
 

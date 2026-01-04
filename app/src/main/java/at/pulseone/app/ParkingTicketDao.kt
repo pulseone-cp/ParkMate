@@ -3,12 +3,16 @@ package at.pulseone.app
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface ParkingTicketDao {
 
     @Insert
     suspend fun insert(ticket: ParkingTicket)
+
+    @Update
+    suspend fun update(ticket: ParkingTicket)
 
     @Query("SELECT * FROM parking_tickets ORDER BY timestamp DESC")
     suspend fun getAll(): List<ParkingTicket>

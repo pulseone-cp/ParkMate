@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var settingsManager: SettingsManager
     private lateinit var repository: ParkingTicketRepository
     private lateinit var printingManager: PrintingManager
+    private lateinit var auditManager: AuditManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         settingsManager = SettingsManager(this)
         repository = ParkingTicketRepository(application)
         printingManager = PrintingManager(this)
+        auditManager = AuditManager()
 
         nameEditText = findViewById(R.id.name_edit_text)
         surnameEditText = findViewById(R.id.surname_edit_text)
@@ -74,6 +76,13 @@ class MainActivity : AppCompatActivity() {
                     val ticket = ParkingTicket(name = name, surname = surname, licensePlate = licensePlate, department = department, timestamp = Date())
                     repository.addTicket(ticket)
                     printingManager.printTicket(ticket)
+
+                    if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
+                        val success = auditManager.reportTicket(ticket, settingsManager.liveAuditEndpoint!!)
+                        if (success) {
+                            repository.updateTicket(ticket.copy(isReported = true))
+                        }
+                    }
 
                     // Clear fields
                     nameEditText.text?.clear()
@@ -138,6 +147,13 @@ class MainActivity : AppCompatActivity() {
             )
             repository.addTicket(ticket)
             printingManager.printTicket(ticket)
+
+            if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
+                val success = auditManager.reportTicket(ticket, settingsManager.liveAuditEndpoint!!)
+                if (success) {
+                    repository.updateTicket(ticket.copy(isReported = true))
+                }
+            }
         }
     }
 

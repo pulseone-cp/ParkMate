@@ -14,5 +14,6 @@ data class ParkingTicket(
     val licensePlate: String,
     val department: String,
     val timestamp: Date,
-    val guid: String = UUID.randomUUID().toString()
+    val guid: String = UUID.randomUUID().toString(),
+    val isReported: Boolean = false
 )

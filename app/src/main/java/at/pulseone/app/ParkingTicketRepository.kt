@@ -10,6 +10,10 @@ class ParkingTicketRepository(application: Application) {
         parkingTicketDao.insert(ticket)
     }
 
+    suspend fun updateTicket(ticket: ParkingTicket) {
+        parkingTicketDao.update(ticket)
+    }
+
     suspend fun getTickets(): List<ParkingTicket> {
         return parkingTicketDao.getAll()
     }

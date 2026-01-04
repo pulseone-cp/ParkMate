@@ -35,7 +35,15 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getString("welcome_body", null)
         set(value) = sharedPreferences.edit().putString("welcome_body", value).apply()
 
-    var ticketValidityHours: Int // Renamed from ticketValidityDays
-        get() = sharedPreferences.getInt("ticket_validity_hours", 8) // Default to 8 hours
+    var ticketValidityHours: Int
+        get() = sharedPreferences.getInt("ticket_validity_hours", 8)
         set(value) = sharedPreferences.edit().putInt("ticket_validity_hours", value).apply()
+
+    var liveAuditEnabled: Boolean
+        get() = sharedPreferences.getBoolean("live_audit_enabled", false)
+        set(value) = sharedPreferences.edit().putBoolean("live_audit_enabled", value).apply()
+
+    var liveAuditEndpoint: String?
+        get() = sharedPreferences.getString("live_audit_endpoint", null)
+        set(value) = sharedPreferences.edit().putString("live_audit_endpoint", value).apply()
 }
