@@ -54,7 +54,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Ticket Validity (Days)"
+        android:hint="Ticket Validity (Hours)"
         app:layout_constraintTop_toBottomOf="@+id/save_welcome_message_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
-            android:maxLength="2" />
+            android:maxLength="3" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

@@ -29,7 +29,7 @@ class DisplayFragment : Fragment() {
 
         welcomeHeadingEditText.setText(settingsManager.welcomeMessageHeading)
         welcomeBodyEditText.setText(settingsManager.welcomeMessageBody)
-        ticketValidityEditText.setText(settingsManager.ticketValidityDays.toString())
+        ticketValidityEditText.setText(settingsManager.ticketValidityHours.toString())
 
         saveWelcomeMessageButton.setOnClickListener {
             val newHeading = welcomeHeadingEditText.text.toString()
@@ -42,12 +42,12 @@ class DisplayFragment : Fragment() {
         }
 
         saveValidityButton.setOnClickListener {
-            val validityDays = ticketValidityEditText.text.toString().toIntOrNull()
-            if (validityDays != null && validityDays in 1..90) {
-                settingsManager.ticketValidityDays = validityDays
+            val validityHours = ticketValidityEditText.text.toString().toIntOrNull()
+            if (validityHours != null && validityHours in 1..999) {
+                settingsManager.ticketValidityHours = validityHours
                 Toast.makeText(context, "Ticket validity saved", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Please enter a number between 1 and 90", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Please enter a number between 1 and 999", Toast.LENGTH_SHORT).show()
             }
         }
 

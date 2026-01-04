@@ -21,6 +21,7 @@ class ValidateFragment : Fragment() {
     private lateinit var repository: ParkingTicketRepository
     private lateinit var settingsManager: SettingsManager
     private lateinit var validationHistoryAdapter: ValidationHistoryAdapter
+    private val validationHistoryRecords = mutableListOf<ValidationRecord>()
 
     private val barcodeLauncher = registerForActivityResult(ScanContract()) {
         result ->
@@ -43,9 +44,12 @@ class ValidateFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.validation_history_recycler_view)
 
         scanButton.setOnClickListener { launchCustomScanner() }
-        clearHistoryButton.setOnClickListener { validationHistoryAdapter.clear() }
+        clearHistoryButton.setOnClickListener { 
+            validationHistoryRecords.clear()
+            validationHistoryAdapter.notifyDataSetChanged()
+         }
 
-        validationHistoryAdapter = ValidationHistoryAdapter(mutableListOf())
+        validationHistoryAdapter = ValidationHistoryAdapter(validationHistoryRecords)
         recyclerView.adapter = validationHistoryAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -60,22 +64,19 @@ class ValidateFragment : Fragment() {
     }
 
     private fun handleScanResult(contents: String) {
-        try {
-            val guid = UUID.fromString(contents)
-            lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val guid = UUID.fromString(contents)
                 val ticket = repository.findTicketByGuid(guid.toString())
                 val validationTime = Date()
                 var expiresAt: Date? = null
                 val validationStatus = when {
                     ticket == null -> "Not Found"
                     else -> {
-                        val validityDays = settingsManager.ticketValidityDays
+                        val validityHours = settingsManager.ticketValidityHours
                         val calendar = Calendar.getInstance()
                         calendar.time = ticket.timestamp
-                        calendar.add(Calendar.DAY_OF_YEAR, validityDays)
-                        calendar.set(Calendar.HOUR_OF_DAY, 23)
-                        calendar.set(Calendar.MINUTE, 59)
-                        calendar.set(Calendar.SECOND, 59)
+                        calendar.add(Calendar.HOUR_OF_DAY, validityHours)
                         expiresAt = calendar.time
 
                         if (validationTime.after(expiresAt)) {
@@ -86,9 +87,9 @@ class ValidateFragment : Fragment() {
                     }
                 }
                 validationHistoryAdapter.addRecord(ValidationRecord(guid.toString(), validationStatus, validationTime, expiresAt))
+            } catch (e: IllegalArgumentException) {
+                validationHistoryAdapter.addRecord(ValidationRecord(contents, "Invalid QR Code", Date(), null))
             }
-        } catch (e: IllegalArgumentException) {
-            validationHistoryAdapter.addRecord(ValidationRecord(contents, "Invalid QR Code", Date(), null))
         }
     }
 }

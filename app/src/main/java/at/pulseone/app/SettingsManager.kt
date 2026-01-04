@@ -11,7 +11,7 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getString("admin_pin", "1234")
         set(value) = sharedPreferences.edit().putString("admin_pin", value).apply()
 
-    var printerTarget: String? // Changed from defaultPrinterId
+    var printerTarget: String?
         get() = sharedPreferences.getString("printer_target", null)
         set(value) = sharedPreferences.edit().putString("printer_target", value).apply()
 
@@ -35,7 +35,7 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getString("welcome_body", null)
         set(value) = sharedPreferences.edit().putString("welcome_body", value).apply()
 
-    var ticketValidityDays: Int
-        get() = sharedPreferences.getInt("ticket_validity_days", 1)
-        set(value) = sharedPreferences.edit().putInt("ticket_validity_days", value).apply()
+    var ticketValidityHours: Int // Renamed from ticketValidityDays
+        get() = sharedPreferences.getInt("ticket_validity_hours", 8) // Default to 8 hours
+        set(value) = sharedPreferences.edit().putInt("ticket_validity_hours", value).apply()
 }

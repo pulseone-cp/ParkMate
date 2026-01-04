@@ -65,7 +65,7 @@
     <string name="ticket_title">Parkticket</string>
     <string name="ticket_label_license_plate">%1$s</string>
     <string name="ticket_label_time">%1$s</string>
-    <string name="ticket_label_printed_at">Gedruckt um %1$s Uhr</string>
+    <string name="ticket_label_printed_at">Gedruckt: %1$s</string>
     <string name="ticket_label_valid_until">Gültig bis: %1$s</string>
 
 </resources>

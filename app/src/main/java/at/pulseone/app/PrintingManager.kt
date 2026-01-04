@@ -99,20 +99,20 @@ class PrintingManager(private val context: Context) {
         val printedAtTextView: TextView = view.findViewById(R.id.printed_at_text_view)
         val imprintTextView: TextView = view.findViewById(R.id.imprint_text_view)
 
-        val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val sdfDateTime = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
         val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
         val title = settingsManager.welcomeMessageHeading
         ticketTitleTextView.text = if (!title.isNullOrBlank()) title else context.getString(R.string.ticket_title)
 
         licensePlateTextView.text = context.getString(R.string.ticket_label_license_plate, ticket.licensePlate)
-        timestampTextView.text = context.getString(R.string.ticket_label_time, sdfDate.format(ticket.timestamp))
+        timestampTextView.text = context.getString(R.string.ticket_label_time, sdfDateTime.format(ticket.timestamp))
 
-        val validityDays = settingsManager.ticketValidityDays
+        val validityHours = settingsManager.ticketValidityHours
         val calendar = Calendar.getInstance()
         calendar.time = ticket.timestamp
-        calendar.add(Calendar.DAY_OF_YEAR, validityDays - 1)
-        validUntilTextView.text = context.getString(R.string.ticket_label_valid_until, sdfDate.format(calendar.time))
+        calendar.add(Calendar.HOUR_OF_DAY, validityHours)
+        validUntilTextView.text = context.getString(R.string.ticket_label_valid_until, sdfDateTime.format(calendar.time))
 
         printedAtTextView.text = context.getString(R.string.ticket_label_printed_at, sdfTime.format(Date()))
 
