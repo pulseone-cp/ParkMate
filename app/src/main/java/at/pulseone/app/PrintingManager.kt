@@ -1,16 +1,10 @@
 package at.pulseone.app
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.pdf.PdfDocument
-import android.os.Bundle
-import android.os.CancellationSignal
-import android.os.ParcelFileDescriptor
-import android.print.PageRange
-import android.print.PrintAttributes
-import android.print.PrintDocumentAdapter
-import android.print.PrintDocumentInfo
-import android.print.PrintManager
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -18,140 +12,197 @@ import android.widget.TextView
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
-import java.io.FileOutputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.io.OutputStream
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class PrintingManager(private val context: Context) {
 
-    fun printTicket(ticket: ParkingTicket) {
-        val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
-        val jobName = context.getString(R.string.ticket_title) + " ${ticket.licensePlate}"
+    private val PRINTER_WIDTH_PX = 384 // 58mm at 203dpi
 
-        val mediaSize = PrintAttributes.MediaSize("roll_50mm", "50mm Thermal Paper", 1969, 10000)
-        val printAttributes = PrintAttributes.Builder()
-            .setMediaSize(mediaSize)
-            .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
-            .build()
+    suspend fun printTicket(ticket: ParkingTicket) {
+        val settingsManager = SettingsManager(context)
+        val printerAddress = settingsManager.printerTarget
 
-        val printAdapter = TicketPrintDocumentAdapter(context, ticket)
+        if (printerAddress.isNullOrBlank()) {
+            // Handle case where no printer is set
+            return
+        }
 
-        printManager.print(jobName, printAdapter, printAttributes)
+        val view = createTicketView(ticket)
+        val bitmap = createBitmapFromView(view)
+
+        withContext(Dispatchers.IO) {
+            try {
+                val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+                val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
+                val device = bluetoothAdapter?.getRemoteDevice(printerAddress)
+
+                if (device == null) {
+                    // Handle case where device is not found
+                    return@withContext
+                }
+
+                val socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+
+                socket?.connect()
+                val outputStream: OutputStream? = socket?.outputStream
+
+                if (outputStream != null) {
+                    val command = EscPosCommand()
+                    command.addInitializePrinter()
+                    command.addRastBitImage(bitmap, PRINTER_WIDTH_PX)
+                    command.addPrintAndFeedLines(3)
+                    command.addCut(EscPosCommand.CUT_FEED)
+                    outputStream.write(command.getCommand())
+                }
+
+                socket?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                // Handle exceptions
+            } catch (e: SecurityException) {
+                e.printStackTrace()
+                // Handle exceptions for missing Bluetooth permissions
+            }
+        }
     }
 
-    private class TicketPrintDocumentAdapter(private val context: Context, private val ticket: ParkingTicket) : PrintDocumentAdapter() {
+    private fun createTicketView(ticket: ParkingTicket): View {
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.ticket_layout, null)
 
-        private var pageHeight: Int = 0
-        private var pageWidth: Int = 0
+        val settingsManager = SettingsManager(context)
+        val ticketTitleTextView: TextView = view.findViewById(R.id.ticket_title)
+        val licensePlateTextView: TextView = view.findViewById(R.id.ticket_license_plate)
+        val timestampTextView: TextView = view.findViewById(R.id.ticket_timestamp)
+        val validUntilTextView: TextView = view.findViewById(R.id.ticket_valid_until_text_view)
+        val qrCodeImageView: ImageView = view.findViewById(R.id.qr_code_image_view)
+        val printedAtTextView: TextView = view.findViewById(R.id.printed_at_text_view)
+        val imprintTextView: TextView = view.findViewById(R.id.imprint_text_view)
 
-        override fun onLayout(
-            oldAttributes: PrintAttributes?,
-            newAttributes: PrintAttributes,
-            cancellationSignal: CancellationSignal?,
-            callback: LayoutResultCallback,
-            extras: Bundle?
-        ) {
-            if (cancellationSignal?.isCanceled == true) {
-                callback.onLayoutCancelled()
-                return
-            }
+        val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
-            pageWidth = newAttributes.mediaSize!!.widthMils * 72 / 1000
+        val title = settingsManager.welcomeMessageHeading
+        ticketTitleTextView.text = if (!title.isNullOrBlank()) title else context.getString(R.string.ticket_title)
 
-            val inflater = LayoutInflater.from(context)
-            val view = inflater.inflate(R.layout.ticket_layout, null)
-            populateTicketView(view, ticket)
+        licensePlateTextView.text = context.getString(R.string.ticket_label_license_plate, ticket.licensePlate)
+        timestampTextView.text = context.getString(R.string.ticket_label_time, sdfDate.format(ticket.timestamp))
 
-            val widthSpec = View.MeasureSpec.makeMeasureSpec(pageWidth, View.MeasureSpec.EXACTLY)
-            val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            view.measure(widthSpec, heightSpec)
-            pageHeight = view.measuredHeight
+        val validityDays = settingsManager.ticketValidityDays
+        val calendar = Calendar.getInstance()
+        calendar.time = ticket.timestamp
+        calendar.add(Calendar.DAY_OF_YEAR, validityDays - 1)
+        validUntilTextView.text = context.getString(R.string.ticket_label_valid_until, sdfDate.format(calendar.time))
 
-            val info = PrintDocumentInfo.Builder("ticket.pdf")
-                .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                .setPageCount(1)
-                .build()
+        printedAtTextView.text = context.getString(R.string.ticket_label_printed_at, sdfTime.format(Date()))
 
-            callback.onLayoutFinished(info, true)
+        val imprintText = settingsManager.imprintText
+        if (!imprintText.isNullOrBlank()) {
+            imprintTextView.text = imprintText
+            imprintTextView.visibility = View.VISIBLE
         }
 
-        override fun onWrite(
-            pages: Array<out PageRange>?,
-            destination: ParcelFileDescriptor?,
-            cancellationSignal: CancellationSignal?,
-            callback: WriteResultCallback
-        ) {
-            if (cancellationSignal?.isCanceled == true) {
-                callback.onWriteCancelled()
-                return
+        try {
+            val multiFormatWriter = MultiFormatWriter()
+            val bitMatrix = multiFormatWriter.encode(ticket.guid, BarcodeFormat.QR_CODE, 120, 120)
+            val barcodeEncoder = BarcodeEncoder()
+            val bitmap: Bitmap = barcodeEncoder.createBitmap(bitMatrix)
+            qrCodeImageView.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return view
+    }
+
+    private fun createBitmapFromView(view: View): Bitmap {
+        view.measure(View.MeasureSpec.makeMeasureSpec(PRINTER_WIDTH_PX, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
+}
+
+// Basic ESC/POS command implementation
+class EscPosCommand {
+    private val command = mutableListOf<Byte>()
+
+    fun addInitializePrinter() {
+        command.add(0x1B)
+        command.add(0x40)
+    }
+
+    fun addRastBitImage(image: Bitmap, width: Int) {
+        val grayscaleBitmap = toGrayscale(image)
+        val pixels = IntArray(grayscaleBitmap.width * grayscaleBitmap.height)
+        grayscaleBitmap.getPixels(pixels, 0, grayscaleBitmap.width, 0, 0, grayscaleBitmap.width, grayscaleBitmap.height)
+
+        val bytes = ByteArray(grayscaleBitmap.width * grayscaleBitmap.height / 8)
+        var byteIndex = 0
+        var bitIndex = 7
+
+        for (pixel in pixels) {
+            if (Color.red(pixel) < 128) { // Assuming white background
+                bytes[byteIndex] = (bytes[byteIndex].toInt() or (1 shl bitIndex)).toByte()
             }
-            
-            val pdfDocument = PdfDocument()
-            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-
-            val inflater = LayoutInflater.from(context)
-            val view = inflater.inflate(R.layout.ticket_layout, null)
-            populateTicketView(view, ticket)
-
-            val widthSpec = View.MeasureSpec.makeMeasureSpec(pageWidth, View.MeasureSpec.EXACTLY)
-            val heightSpec = View.MeasureSpec.makeMeasureSpec(pageHeight, View.MeasureSpec.EXACTLY)
-            view.measure(widthSpec, heightSpec)
-            view.layout(0, 0, pageWidth, pageHeight)
-
-            view.draw(page.canvas)
-
-            pdfDocument.finishPage(page)
-
-            try {
-                destination?.let {
-                    pdfDocument.writeTo(FileOutputStream(it.fileDescriptor))
-                }
-            } catch (e: IOException) {
-                callback.onWriteFailed(e.toString())
-            } finally {
-                pdfDocument.close()
+            bitIndex--
+            if (bitIndex < 0) {
+                bitIndex = 7
+                byteIndex++
             }
-
-            callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
         }
         
-        private fun populateTicketView(view: View, ticket: ParkingTicket) {
-            val settingsManager = SettingsManager(context)
-            val ticketTitleTextView: TextView = view.findViewById(R.id.ticket_title)
-            val licensePlateTextView: TextView = view.findViewById(R.id.ticket_license_plate)
-            val timestampTextView: TextView = view.findViewById(R.id.ticket_timestamp)
-            val qrCodeImageView: ImageView = view.findViewById(R.id.qr_code_image_view)
-            val printedAtTextView: TextView = view.findViewById(R.id.printed_at_text_view)
-            val imprintTextView: TextView = view.findViewById(R.id.imprint_text_view)
+        command.add(0x1D) // GS
+        command.add(0x76) // v
+        command.add(0x30) // 0
+        command.add(0x00) // m
+        command.add((width / 8 % 256).toByte()) // xL
+        command.add((width / 8 / 256).toByte()) // xH
+        command.add((grayscaleBitmap.height % 256).toByte()) // yL
+        command.add((grayscaleBitmap.height / 256).toByte()) // yH
+        command.addAll(bytes.toList())
+    }
 
-            val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-            val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    fun addPrintAndFeedLines(n: Int) {
+        command.add(0x1B)
+        command.add(0x64)
+        command.add(n.toByte())
+    }
 
-            val title = settingsManager.welcomeMessageHeading
-            ticketTitleTextView.text = if (!title.isNullOrBlank()) title else context.getString(R.string.ticket_title)
-            
-            licensePlateTextView.text = context.getString(R.string.ticket_label_license_plate, ticket.licensePlate)
-            timestampTextView.text = context.getString(R.string.ticket_label_time, sdfDate.format(ticket.timestamp))
-            printedAtTextView.text = context.getString(R.string.ticket_label_printed_at, sdfTime.format(Date()))
+    fun addCut(cutType: Byte) {
+        command.add(0x1D)
+        command.add(0x56)
+        command.add(cutType)
+    }
 
-            val imprintText = settingsManager.imprintText
-            if (!imprintText.isNullOrBlank()) {
-                imprintTextView.text = imprintText
-                imprintTextView.visibility = View.VISIBLE
-            }
+    fun getCommand(): ByteArray {
+        return command.toByteArray()
+    }
 
-            try {
-                val multiFormatWriter = MultiFormatWriter()
-                val bitMatrix = multiFormatWriter.encode(ticket.guid, BarcodeFormat.QR_CODE, 120, 120)
-                val barcodeEncoder = BarcodeEncoder()
-                val bitmap: Bitmap = barcodeEncoder.createBitmap(bitMatrix)
-                qrCodeImageView.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+    private fun toGrayscale(bmpOriginal: Bitmap): Bitmap {
+        val height: Int = bmpOriginal.height
+        val width: Int = bmpOriginal.width
+        val bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val c = android.graphics.Canvas(bmpGrayscale)
+        val paint = android.graphics.Paint()
+        val cm = android.graphics.ColorMatrix()
+        cm.setSaturation(0f)
+        val f = android.graphics.ColorMatrixColorFilter(cm)
+        paint.colorFilter = f
+        c.drawBitmap(bmpOriginal, 0f, 0f, paint)
+        return bmpGrayscale
+    }
+
+    companion object {
+        const val CUT_FEED: Byte = 1
     }
 }

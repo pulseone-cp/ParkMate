@@ -51,9 +51,11 @@ class HistoryFragment : Fragment() {
         historyRecyclerView = view.findViewById(R.id.history_recycler_view)
         historyRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        historyAdapter = HistoryAdapter(tickets) {
+        historyAdapter = HistoryAdapter(tickets) { ticket ->
             // Reprint ticket
-            printingManager.printTicket(it)
+            lifecycleScope.launch {
+                printingManager.printTicket(ticket)
+            }
         }
         historyRecyclerView.adapter = historyAdapter
 

@@ -11,9 +11,9 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getString("admin_pin", "1234")
         set(value) = sharedPreferences.edit().putString("admin_pin", value).apply()
 
-    var defaultPrinter: String?
-        get() = sharedPreferences.getString("default_printer", null)
-        set(value) = sharedPreferences.edit().putString("default_printer", value).apply()
+    var printerTarget: String? // Changed from defaultPrinterId
+        get() = sharedPreferences.getString("printer_target", null)
+        set(value) = sharedPreferences.edit().putString("printer_target", value).apply()
 
     var departments: Set<String>?
         get() = sharedPreferences.getStringSet("departments", setOf("Sales", "Marketing", "Development", "HR"))
