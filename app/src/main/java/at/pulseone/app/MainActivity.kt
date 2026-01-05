@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.Date
 import kotlin.random.Random
 
@@ -73,7 +74,13 @@ class MainActivity : AppCompatActivity() {
 
             if (name.isNotBlank() && surname.isNotBlank() && licensePlate.isNotBlank() && department.isNotBlank()) {
                 lifecycleScope.launch {
-                    val ticket = ParkingTicket(name = name, surname = surname, licensePlate = licensePlate, department = department, timestamp = Date())
+                    val timestamp = Date()
+                    val calendar = Calendar.getInstance()
+                    calendar.time = timestamp
+                    calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
+                    val validUntil = calendar.time
+
+                    val ticket = ParkingTicket(name = name, surname = surname, licensePlate = licensePlate, department = department, timestamp = timestamp, validFrom = timestamp, validUntil = validUntil)
                     val newTicket = repository.addTicket(ticket)
                     printingManager.printTicket(newTicket)
 

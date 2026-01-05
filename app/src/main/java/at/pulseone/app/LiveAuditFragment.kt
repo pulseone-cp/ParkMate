@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 
 class LiveAuditFragment : Fragment() {
 
@@ -44,7 +46,13 @@ class LiveAuditFragment : Fragment() {
             val endpointUrl = liveAuditEndpointEditText.text.toString()
             if (endpointUrl.isNotBlank()) {
                 lifecycleScope.launch {
-                    val success = auditManager.reportTicket(ParkingTicket(name = "Test", surname = "Ticket", licensePlate = "TEST-000", department = "Test", timestamp = java.util.Date()), endpointUrl)
+                    val timestamp = Date()
+                    val calendar = Calendar.getInstance()
+                    calendar.time = timestamp
+                    calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
+                    val validUntil = calendar.time
+                    val testTicket = ParkingTicket(name = "Test", surname = "Ticket", licensePlate = "TEST-000", department = "Test", timestamp = timestamp, validFrom = timestamp, validUntil = validUntil)
+                    val success = auditManager.reportTicket(testTicket, endpointUrl)
                     if (success) {
                         Toast.makeText(context, "Endpoint test successful", Toast.LENGTH_SHORT).show()
                     } else {

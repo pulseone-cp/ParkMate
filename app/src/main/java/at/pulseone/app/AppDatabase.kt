@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [ParkingTicket::class], version = 3) // <--- Version incremented
+@Database(entities = [ParkingTicket::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "parkmate_database"
                 )
-                .fallbackToDestructiveMigration() // <--- Added migration strategy
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance
