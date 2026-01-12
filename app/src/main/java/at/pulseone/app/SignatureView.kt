@@ -22,6 +22,7 @@ class SignatureView(context: Context, attrs: AttributeSet) : View(context, attrs
     private val path = Path()
 
     override fun onDraw(canvas: Canvas) {
+        canvas.drawColor(Color.TRANSPARENT)
         canvas.drawPath(path, paint)
     }
 

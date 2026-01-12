@@ -2,7 +2,6 @@ package at.pulseone.app
 
 import android.app.Application
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +32,6 @@ class HistoryAdapter(
         val printButton: Button = itemView.findViewById(R.id.print_button)
         val reportedIcon: ImageView = itemView.findViewById(R.id.reported_icon)
         val uploadButton: ImageButton = itemView.findViewById(R.id.upload_button)
-        val signaturePreviewImageView: ImageView = itemView.findViewById(R.id.signature_preview_image_view)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -49,27 +47,22 @@ class HistoryAdapter(
         holder.departmentTextView.text = ticket.department
         holder.timestampTextView.text = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(ticket.timestamp)
 
-        if (ticket.signaturePath != null) {
-            val file = File(ticket.signaturePath)
-            if (file.exists()) {
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                holder.signaturePreviewImageView.setImageBitmap(bitmap)
-                holder.signaturePreviewImageView.visibility = View.VISIBLE
-                holder.signaturePreviewImageView.setOnClickListener {
-                    val intent = Intent(holder.itemView.context, SignatureDetailActivity::class.java)
-                    intent.putExtra("SIGNATURE_PATH", ticket.signaturePath)
-                    holder.itemView.context.startActivity(intent)
-                }
-            } else {
-                holder.signaturePreviewImageView.visibility = View.GONE
-            }
-        } else {
-            holder.signaturePreviewImageView.visibility = View.GONE
-        }
-
         holder.viewButton.setOnClickListener {
-            val intent = Intent(holder.itemView.context, TicketViewActivity::class.java)
-            intent.putExtra("ticket_guid", ticket.guid)
+            val intent = Intent(holder.itemView.context, TicketAssetsActivity::class.java)
+            ticket.signaturePath?.let {
+                val file = File(it)
+                if (file.exists()) {
+                    val uri = FileProvider.getUriForFile(holder.itemView.context, "${holder.itemView.context.packageName}.provider", file)
+                    intent.putExtra("SIGNATURE_URI", uri)
+                }
+            }
+            ticket.pdfPath?.let {
+                val file = File(it)
+                if (file.exists()) {
+                    val uri = FileProvider.getUriForFile(holder.itemView.context, "${holder.itemView.context.packageName}.provider", file)
+                    intent.putExtra("PDF_URI", uri)
+                }
+            }
             holder.itemView.context.startActivity(intent)
         }
 

@@ -51,6 +51,10 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getBoolean("allow_no_license_plate", false)
         set(value) = sharedPreferences.edit().putBoolean("allow_no_license_plate", value).apply()
 
+    var renderSignatureOnPdf: Boolean
+        get() = sharedPreferences.getBoolean("render_signature_on_pdf", false)
+        set(value) = sharedPreferences.edit().putBoolean("render_signature_on_pdf", value).apply()
+
     fun getDepartmentPdfPath(department: String): String? {
         return sharedPreferences.getString("pdf_path_$department", null)
     }

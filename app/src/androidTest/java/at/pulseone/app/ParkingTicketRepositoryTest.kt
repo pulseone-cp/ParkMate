@@ -35,9 +35,19 @@ class ParkingTicketRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun insertAndGetTicket() = runBlocking {
-        val ticket = ParkingTicket(name = "John", surname = "Doe", licensePlate = "1234", department = "Sales", timestamp = Date())
-        parkingTicketDao.insert(ticket)
+        val now = Date()
+        val ticket = ParkingTicket(
+            name = "John",
+            surname = "Doe",
+            licensePlate = "1234",
+            department = "Sales",
+            timestamp = now,
+            validFrom = now,
+            validUntil = now
+        )
+        val id = parkingTicketDao.insert(ticket)
+        val insertedTicket = ticket.copy(id = id.toInt())
         val allTickets = parkingTicketDao.getAll()
-        assert(allTickets.contains(ticket))
+        assert(allTickets.contains(insertedTicket))
     }
 }

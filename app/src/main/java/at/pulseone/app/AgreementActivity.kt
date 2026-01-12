@@ -3,23 +3,25 @@ package at.pulseone.app
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
-import android.widget.ImageView
-import android.widget.LinearLayout
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import java.io.File
+import java.io.FileOutputStream
 
 class AgreementActivity : AppCompatActivity() {
 
     private var pdfRenderer: PdfRenderer? = null
     private var parcelFileDescriptor: ParcelFileDescriptor? = null
+    private var pdfUri: Uri? = null
 
     private val signatureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -32,18 +34,26 @@ class AgreementActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_agreement)
 
-        val pdfPath = intent.getStringExtra("PDF_PATH")
+        pdfUri = intent.getParcelableExtra<Uri>("PDF_URI")
         val agreeButton: Button = findViewById(R.id.agree_button)
         val pdfPagesContainer: ZoomableLinearLayout = findViewById(R.id.pdf_pages_container)
 
         val abortActivityButton: Button = findViewById(R.id.abort_activity_button)
 
-        if (pdfPath != null) {
-            displayPdf(pdfPath, pdfPagesContainer)
+        if (pdfUri != null) {
+            displayPdf(pdfUri!!, pdfPagesContainer)
         }
         
         agreeButton.setOnClickListener {
             val intent = Intent(this, SignatureActivity::class.java)
+            pdfUri?.let { uri ->
+                val previewFile = createPdfPreview(uri)
+                if (previewFile != null) {
+                    val previewUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.provider", previewFile)
+                    intent.putExtra("PDF_PREVIEW_URI", previewUri)
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+            }
             signatureLauncher.launch(intent)
         }
 
@@ -53,10 +63,32 @@ class AgreementActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayPdf(path: String, container: ZoomableLinearLayout) {
+    private fun createPdfPreview(uri: Uri): File? {
+        return try {
+            val pfd = contentResolver.openFileDescriptor(uri, "r")
+            val renderer = PdfRenderer(pfd!!)
+            val page = renderer.openPage(0)
+            val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            page.close()
+            renderer.close()
+            pfd.close()
+
+            val previewFile = File(cacheDir, "pdf_preview.png")
+            val out = FileOutputStream(previewFile)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            out.flush()
+            out.close()
+            previewFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun displayPdf(uri: Uri, container: ZoomableLinearLayout) {
         try {
-            val file = File(path)
-            parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+            parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r")
             pdfRenderer = PdfRenderer(parcelFileDescriptor!!)
 
             for (i in 0 until pdfRenderer!!.pageCount) {

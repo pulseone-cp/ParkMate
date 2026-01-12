@@ -3,6 +3,7 @@ package at.pulseone.app
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.StrictMode
 import android.text.InputFilter
 import android.view.Menu
 import android.view.MenuItem
@@ -15,9 +16,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Calendar
 import java.util.Date
 import kotlin.random.Random
@@ -52,7 +55,15 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val signaturePath = result.data?.getStringExtra("SIGNATURE_PATH")
             pendingTicketData?.let { data ->
-                val pdfPath = settingsManager.getDepartmentPdfPath(data.department)
+                var pdfPath = settingsManager.getDepartmentPdfPath(data.department)
+                
+                if (settingsManager.renderSignatureOnPdf && signaturePath != null && pdfPath != null) {
+                    val signedPdfPath = PdfSignatureUtils.renderSignatureOnPdf(this, pdfPath, signaturePath)
+                    if (signedPdfPath != null) {
+                        pdfPath = signedPdfPath
+                    }
+                }
+                
                 createAndPrintTicket(
                     data.name,
                     data.surname,
@@ -70,6 +81,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Add StrictMode to detect file URI exposure
+        val builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
+
         setContentView(R.layout.activity_main)
 
         settingsManager = SettingsManager(this)
@@ -111,7 +126,6 @@ class MainActivity : AppCompatActivity() {
                             .setTitle("No License Plate")
                             .setMessage("Did you really not come by car?")
                             .setPositiveButton("Yes") { _, _ ->
-                                val pdfPath = settingsManager.getDepartmentPdfPath(department)
                                 checkAgreementAndProceed(name, surname, "", department, departments, defaultDepartment)
                             }
                             .setNegativeButton("No", null)
@@ -212,13 +226,19 @@ class MainActivity : AppCompatActivity() {
     ) {
         val pdfPath = settingsManager.getDepartmentPdfPath(department)
         if (pdfPath != null) {
-            pendingTicketData = PendingTicketData(name, surname, licensePlate, department, departments, defaultDepartment)
-            val intent = Intent(this, AgreementActivity::class.java)
-            intent.putExtra("PDF_PATH", pdfPath)
-            agreementLauncher.launch(intent)
+            val pdfFile = File(pdfPath)
+            if (pdfFile.exists()) {
+                pendingTicketData = PendingTicketData(name, surname, licensePlate, department, departments, defaultDepartment)
+                val pdfUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.provider", pdfFile)
+                val intent = Intent(this, AgreementActivity::class.java)
+                intent.putExtra("PDF_URI", pdfUri)
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                agreementLauncher.launch(intent)
+            } else {
+                createAndPrintTicket(name, surname, licensePlate, department, departments, defaultDepartment)
+            }
         } else {
-            val pdfPath = settingsManager.getDepartmentPdfPath(department)
-            createAndPrintTicket(name, surname, licensePlate, department, departments, defaultDepartment, pdfPath = pdfPath)
+            createAndPrintTicket(name, surname, licensePlate, department, departments, defaultDepartment)
         }
     }
 

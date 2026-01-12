@@ -14,6 +14,19 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    
+    <queries>
+        <package android:name="com.google.android.gms" />
+        <intent>
+            <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+        </intent>
+        <intent>
+            <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        </intent>
+        <intent>
+            <action android:name="com.google.android.gms.metadata.IOverlayService" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -46,6 +59,7 @@
         <activity android:name=".AgreementActivity" />
         <activity android:name=".SignatureActivity" />
         <activity android:name=".SignatureDetailActivity" />
+        <activity android:name=".TicketAssetsActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
