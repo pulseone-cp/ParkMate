@@ -51,7 +51,17 @@ class LiveAuditFragment : Fragment() {
                     calendar.time = timestamp
                     calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
                     val validUntil = calendar.time
-                    val testTicket = ParkingTicket(name = "Test", surname = "Ticket", licensePlate = "TEST-000", department = "Test", timestamp = timestamp, validFrom = timestamp, validUntil = validUntil)
+                    val testTicket = ParkingTicket(
+                        name = "Test",
+                        surname = "Ticket",
+                        licensePlate = "TEST-000",
+                        department = "Test",
+                        timestamp = timestamp,
+                        validFrom = timestamp,
+                        validUntil = validUntil,
+                        signaturePath = null,
+                        pdfPath = null
+                    )
                     val success = auditManager.reportTicket(testTicket, endpointUrl)
                     if (success) {
                         Toast.makeText(context, "Endpoint test successful", Toast.LENGTH_SHORT).show()

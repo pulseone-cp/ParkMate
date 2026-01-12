@@ -105,7 +105,8 @@ class PrintingManager(private val context: Context) {
         val title = settingsManager.welcomeMessageHeading
         ticketTitleTextView.text = if (!title.isNullOrBlank()) title else context.getString(R.string.ticket_title)
 
-        licensePlateTextView.text = context.getString(R.string.ticket_label_license_plate, ticket.licensePlate)
+        val plateText = if (ticket.licensePlate.isBlank()) "BESUCHER" else ticket.licensePlate
+        licensePlateTextView.text = context.getString(R.string.ticket_label_license_plate, plateText)
         timestampTextView.text = context.getString(R.string.ticket_label_time, sdfDateTime.format(ticket.timestamp))
 
         val validityHours = settingsManager.ticketValidityHours

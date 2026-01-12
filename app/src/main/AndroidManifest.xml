@@ -43,6 +43,9 @@
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".TicketViewActivity" />
+        <activity android:name=".AgreementActivity" />
+        <activity android:name=".SignatureActivity" />
+        <activity android:name=".SignatureDetailActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

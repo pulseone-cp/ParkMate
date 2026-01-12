@@ -1,8 +1,10 @@
 package at.pulseone.app
 
+import android.util.Base64
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -21,7 +23,28 @@ class AuditManager {
                 val gson = GsonBuilder()
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                     .create()
-                val jsonPayload = gson.toJson(ticket)
+
+                val signatureBase64 = ticket.signaturePath?.let { path ->
+                    val file = File(path)
+                    if (file.exists()) {
+                        Base64.encodeToString(file.readBytes(), Base64.NO_WRAP)
+                    } else null
+                }
+
+                val pdfBase64 = ticket.pdfPath?.let { path ->
+                    val file = File(path)
+                    if (file.exists()) {
+                        Base64.encodeToString(file.readBytes(), Base64.NO_WRAP)
+                    } else null
+                }
+
+                val payload = mutableMapOf<String, Any?>(
+                    "ticket" to ticket,
+                    "signatureImage" to signatureBase64,
+                    "signedDocument" to pdfBase64
+                )
+
+                val jsonPayload = gson.toJson(payload)
 
                 val writer = OutputStreamWriter(connection.outputStream)
                 writer.write(jsonPayload)

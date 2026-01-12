@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 
 class DisplayFragment : Fragment() {
@@ -26,10 +27,12 @@ class DisplayFragment : Fragment() {
         val saveWelcomeMessageButton: Button = view.findViewById(R.id.save_welcome_message_button)
         val ticketValidityEditText: TextInputEditText = view.findViewById(R.id.ticket_validity_edit_text)
         val saveValidityButton: Button = view.findViewById(R.id.save_validity_button)
+        val allowNoLicensePlateSwitch: SwitchMaterial = view.findViewById(R.id.allow_no_license_plate_switch)
 
         welcomeHeadingEditText.setText(settingsManager.welcomeMessageHeading)
         welcomeBodyEditText.setText(settingsManager.welcomeMessageBody)
         ticketValidityEditText.setText(settingsManager.ticketValidityHours.toString())
+        allowNoLicensePlateSwitch.isChecked = settingsManager.allowNoLicensePlate
 
         saveWelcomeMessageButton.setOnClickListener {
             settingsManager.welcomeMessageHeading = welcomeHeadingEditText.text.toString()
@@ -45,6 +48,10 @@ class DisplayFragment : Fragment() {
             } else {
                 Toast.makeText(context, "Please enter a number between 1 and 999", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        allowNoLicensePlateSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.allowNoLicensePlate = isChecked
         }
 
         return view

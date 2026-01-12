@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
@@ -35,6 +36,37 @@ class MainActivity : AppCompatActivity() {
     private lateinit var repository: ParkingTicketRepository
     private lateinit var printingManager: PrintingManager
     private lateinit var auditManager: AuditManager
+
+    private var pendingTicketData: PendingTicketData? = null
+
+    data class PendingTicketData(
+        val name: String,
+        val surname: String,
+        val licensePlate: String,
+        val department: String,
+        val departments: List<String>,
+        val defaultDepartment: String?
+    )
+
+    private val agreementLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val signaturePath = result.data?.getStringExtra("SIGNATURE_PATH")
+            pendingTicketData?.let { data ->
+                val pdfPath = settingsManager.getDepartmentPdfPath(data.department)
+                createAndPrintTicket(
+                    data.name,
+                    data.surname,
+                    data.licensePlate,
+                    data.department,
+                    data.departments,
+                    data.defaultDepartment,
+                    signaturePath,
+                    pdfPath
+                )
+            }
+        }
+        pendingTicketData = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,34 +104,23 @@ class MainActivity : AppCompatActivity() {
             val licensePlate = licensePlateEditText.text.toString()
             val department = departmentAutoComplete.text.toString()
 
-            if (name.isNotBlank() && surname.isNotBlank() && licensePlate.isNotBlank() && department.isNotBlank()) {
-                lifecycleScope.launch {
-                    val timestamp = Date()
-                    val calendar = Calendar.getInstance()
-                    calendar.time = timestamp
-                    calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
-                    val validUntil = calendar.time
-
-                    val ticket = ParkingTicket(name = name, surname = surname, licensePlate = licensePlate, department = department, timestamp = timestamp, validFrom = timestamp, validUntil = validUntil)
-                    val newTicket = repository.addTicket(ticket)
-                    printingManager.printTicket(newTicket)
-
-                    if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
-                        val success = auditManager.reportTicket(newTicket, settingsManager.liveAuditEndpoint!!)
-                        if (success) {
-                            repository.updateTicket(newTicket.copy(isReported = true))
-                        }
-                    }
-
-                    // Clear fields
-                    nameEditText.text?.clear()
-                    surnameEditText.text?.clear()
-                    licensePlateEditText.text?.clear()
-                    if (defaultDepartment != null && departments.contains(defaultDepartment)) {
-                        departmentAutoComplete.setText(defaultDepartment, false)
+            if (name.isNotBlank() && surname.isNotBlank() && department.isNotBlank()) {
+                if (licensePlate.isBlank()) {
+                    if (settingsManager.allowNoLicensePlate) {
+                        AlertDialog.Builder(this)
+                            .setTitle("No License Plate")
+                            .setMessage("Did you really not come by car?")
+                            .setPositiveButton("Yes") { _, _ ->
+                                val pdfPath = settingsManager.getDepartmentPdfPath(department)
+                                checkAgreementAndProceed(name, surname, "", department, departments, defaultDepartment)
+                            }
+                            .setNegativeButton("No", null)
+                            .show()
                     } else {
-                        departmentAutoComplete.text?.clear()
+                        Toast.makeText(this, R.string.toast_fill_all_fields, Toast.LENGTH_SHORT).show()
                     }
+                } else {
+                    checkAgreementAndProceed(name, surname, licensePlate, department, departments, defaultDepartment)
                 }
             } else {
                 Toast.makeText(this, R.string.toast_fill_all_fields, Toast.LENGTH_SHORT).show()
@@ -128,6 +149,76 @@ class MainActivity : AppCompatActivity() {
             departmentAutoComplete.setText(randomDepartment, false)
 
             confirmButton.performClick()
+        }
+    }
+
+    private fun createAndPrintTicket(
+        name: String,
+        surname: String,
+        licensePlate: String,
+        department: String,
+        departments: List<String>,
+        defaultDepartment: String?,
+        signaturePath: String? = null,
+        pdfPath: String? = null
+    ) {
+        lifecycleScope.launch {
+            val timestamp = Date()
+            val calendar = Calendar.getInstance()
+            calendar.time = timestamp
+            calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
+            val validUntil = calendar.time
+
+            val ticket = ParkingTicket(
+                name = name,
+                surname = surname,
+                licensePlate = licensePlate,
+                department = department,
+                timestamp = timestamp,
+                validFrom = timestamp,
+                validUntil = validUntil,
+                signaturePath = signaturePath,
+                pdfPath = pdfPath
+            )
+            val newTicket = repository.addTicket(ticket)
+            printingManager.printTicket(newTicket)
+
+            if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
+                val success = auditManager.reportTicket(newTicket, settingsManager.liveAuditEndpoint!!)
+                if (success) {
+                    repository.updateTicket(newTicket.copy(isReported = true))
+                }
+            }
+
+            // Clear fields
+            nameEditText.text?.clear()
+            surnameEditText.text?.clear()
+            licensePlateEditText.text?.clear()
+            if (defaultDepartment != null && departments.contains(defaultDepartment)) {
+                departmentAutoComplete.setText(defaultDepartment, false)
+            } else {
+                departmentAutoComplete.text?.clear()
+            }
+        }
+    }
+
+    private fun checkAgreementAndProceed(
+        name: String,
+        surname: String,
+        licensePlate: String,
+        department: String,
+        departments: List<String>,
+        defaultDepartment: String?
+    ) {
+        val pdfPath = settingsManager.getDepartmentPdfPath(department)
+        if (pdfPath != null) {
+            pendingTicketData = PendingTicketData(name, surname, licensePlate, department, departments, defaultDepartment)
+            val intent = Intent(this, AgreementActivity::class.java)
+            intent.putExtra("PDF_PATH", pdfPath)
+            agreementLauncher.launch(intent)
+        } else {
+            val pdfPath = settingsManager.getDepartmentPdfPath(department)
+            createAndPrintTicket(name, surname, licensePlate, department, departments, defaultDepartment, pdfPath = pdfPath)
         }
     }
 

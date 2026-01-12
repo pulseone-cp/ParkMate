@@ -17,5 +17,7 @@ data class ParkingTicket(
     val guid: String = UUID.randomUUID().toString(),
     val isReported: Boolean = false,
     val validFrom: Date,
-    val validUntil: Date
+    val validUntil: Date,
+    val signaturePath: String? = null,
+    val pdfPath: String? = null
 )

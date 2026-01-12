@@ -46,4 +46,16 @@ class SettingsManager(context: Context) {
     var liveAuditEndpoint: String?
         get() = sharedPreferences.getString("live_audit_endpoint", null)
         set(value) = sharedPreferences.edit().putString("live_audit_endpoint", value).apply()
+
+    var allowNoLicensePlate: Boolean
+        get() = sharedPreferences.getBoolean("allow_no_license_plate", false)
+        set(value) = sharedPreferences.edit().putBoolean("allow_no_license_plate", value).apply()
+
+    fun getDepartmentPdfPath(department: String): String? {
+        return sharedPreferences.getString("pdf_path_$department", null)
+    }
+
+    fun setDepartmentPdfPath(department: String, path: String?) {
+        sharedPreferences.edit().putString("pdf_path_$department", path).apply()
+    }
 }

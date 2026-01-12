@@ -10,8 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 class DepartmentsAdapter(
     private val departments: List<String>,
     private var defaultDepartment: String?,
+    private val settingsManager: SettingsManager,
     private val onRemoveClick: (String) -> Unit,
-    private val onSetDefaultClick: (String) -> Unit
+    private val onSetDefaultClick: (String) -> Unit,
+    private val onUploadPdfClick: (String) -> Unit
 ) : RecyclerView.Adapter<DepartmentsAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -19,6 +21,8 @@ class DepartmentsAdapter(
         val defaultIndicatorTextView: TextView = itemView.findViewById(R.id.default_indicator_text_view)
         val removeDepartmentButton: Button = itemView.findViewById(R.id.remove_department_button)
         val setDefaultDepartmentButton: Button = itemView.findViewById(R.id.set_default_department_button)
+        val uploadPdfButton: Button = itemView.findViewById(R.id.upload_pdf_button)
+        val pdfStatusTextView: TextView = itemView.findViewById(R.id.pdf_status_text_view)
 
         init {
             removeDepartmentButton.setOnClickListener {
@@ -26,6 +30,9 @@ class DepartmentsAdapter(
             }
             setDefaultDepartmentButton.setOnClickListener {
                 onSetDefaultClick(departments[adapterPosition])
+            }
+            uploadPdfButton.setOnClickListener {
+                onUploadPdfClick(departments[adapterPosition])
             }
         }
     }
@@ -46,6 +53,13 @@ class DepartmentsAdapter(
         } else {
             holder.defaultIndicatorTextView.visibility = View.GONE
             holder.setDefaultDepartmentButton.visibility = View.VISIBLE
+        }
+
+        val pdfPath = settingsManager.getDepartmentPdfPath(department)
+        if (pdfPath != null) {
+            holder.pdfStatusTextView.text = "PDF uploaded: ${pdfPath.split("/").last()}"
+        } else {
+            holder.pdfStatusTextView.text = "No PDF uploaded"
         }
         
         holder.removeDepartmentButton.text = holder.itemView.context.getString(R.string.button_remove)
