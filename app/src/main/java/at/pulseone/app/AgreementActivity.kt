@@ -43,14 +43,15 @@ class AgreementActivity : AppCompatActivity() {
         if (pdfUri != null) {
             displayPdf(pdfUri!!, pdfPagesContainer)
         }
-        
+
         agreeButton.setOnClickListener {
             val intent = Intent(this, SignatureActivity::class.java)
             pdfUri?.let { uri ->
-                val previewFile = createPdfPreview(uri)
-                if (previewFile != null) {
+                createPdfPreview(uri)?.let { (previewFile, originalWidth, originalHeight) ->
                     val previewUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.provider", previewFile)
                     intent.putExtra("PDF_PREVIEW_URI", previewUri)
+                    intent.putExtra("ORIGINAL_WIDTH", originalWidth)
+                    intent.putExtra("ORIGINAL_HEIGHT", originalHeight)
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
             }
@@ -63,23 +64,35 @@ class AgreementActivity : AppCompatActivity() {
         }
     }
 
-    private fun createPdfPreview(uri: Uri): File? {
+    private fun createPdfPreview(uri: Uri): Triple<File, Int, Int>? {
         return try {
-            val pfd = contentResolver.openFileDescriptor(uri, "r")
-            val renderer = PdfRenderer(pfd!!)
-            val page = renderer.openPage(0)
-            val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            page.close()
-            renderer.close()
-            pfd.close()
+            val pfd = contentResolver.openFileDescriptor(uri, "r")!!
+            val renderer = PdfRenderer(pfd)
+            val pageCount = renderer.pageCount
+            if (pageCount == 0) {
+                renderer.close()
+                pfd.close()
+                return null
+            }
 
+            val page = renderer.openPage(pageCount - 1) // Get the last page
+            val originalWidth = page.width
+            val originalHeight = page.height
+
+            val bitmap = Bitmap.createBitmap(originalWidth, originalHeight, Bitmap.Config.ARGB_8888)
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            
             val previewFile = File(cacheDir, "pdf_preview.png")
             val out = FileOutputStream(previewFile)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
             out.flush()
             out.close()
-            previewFile
+
+            page.close()
+            renderer.close()
+            pfd.close()
+
+            Triple(previewFile, originalWidth, originalHeight)
         } catch (e: Exception) {
             e.printStackTrace()
             null

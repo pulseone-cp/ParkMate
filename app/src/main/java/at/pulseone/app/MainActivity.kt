@@ -1,6 +1,8 @@
 package at.pulseone.app
 
+import android.app.Activity
 import android.content.Intent
+import android.graphics.RectF
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.StrictMode
@@ -52,13 +54,14 @@ class MainActivity : AppCompatActivity() {
     )
 
     private val agreementLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
+        if (result.resultCode == Activity.RESULT_OK) {
             val signaturePath = result.data?.getStringExtra("SIGNATURE_PATH")
+            val signatureBounds = result.data?.getParcelableExtra<RectF>("SIGNATURE_BOUNDS")
             pendingTicketData?.let { data ->
                 var pdfPath = settingsManager.getDepartmentPdfPath(data.department)
                 
-                if (settingsManager.renderSignatureOnPdf && signaturePath != null && pdfPath != null) {
-                    val signedPdfPath = PdfSignatureUtils.renderSignatureOnPdf(this, pdfPath, signaturePath)
+                if (settingsManager.renderSignatureOnPdf && signaturePath != null && pdfPath != null && signatureBounds != null) {
+                    val signedPdfPath = PdfSignatureUtils.renderSignatureOnPdf(this, pdfPath, signaturePath, signatureBounds)
                     if (signedPdfPath != null) {
                         pdfPath = signedPdfPath
                     }
