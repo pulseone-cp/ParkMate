@@ -144,12 +144,12 @@ class MainActivity : AppCompatActivity() {
                 if (licensePlate.isBlank()) {
                     if (settingsManager.allowNoLicensePlate) {
                         AlertDialog.Builder(this)
-                            .setTitle("No License Plate")
-                            .setMessage("Did you really not come by car?")
-                            .setPositiveButton("Yes") { _, _ ->
+                            .setTitle(R.string.dialog_no_license_plate_title)
+                            .setMessage(R.string.dialog_no_license_plate_message)
+                            .setPositiveButton(R.string.button_yes) { _, _ ->
                                 checkAgreementAndProceed(name, surname, company, "", department, departments, defaultDepartment)
                             }
-                            .setNegativeButton("No", null)
+                            .setNegativeButton(R.string.button_no, null)
                             .show()
                     } else {
                         Toast.makeText(this, R.string.toast_fill_all_fields, Toast.LENGTH_SHORT).show()
@@ -158,13 +158,13 @@ class MainActivity : AppCompatActivity() {
                     checkAgreementAndProceed(name, surname, company, licensePlate, department, departments, defaultDepartment)
                 }
             } else {
-                Toast.makeText(this, "Please fill all required fields correctly", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_fill_required_fields, Toast.LENGTH_SHORT).show()
             }
         }
 
         testPrintButton.setOnClickListener {
             if (departments.isEmpty()) {
-                Toast.makeText(this, "Please add a department first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_add_department_first, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -247,7 +247,7 @@ class MainActivity : AppCompatActivity() {
                     if (success) {
                         repository.updateTicket(newTicket.copy(isReported = true))
                     } else {
-                        Toast.makeText(this@MainActivity, "Audit reporting failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, R.string.toast_audit_failed, Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -256,7 +256,7 @@ class MainActivity : AppCompatActivity() {
                     val printSuccess = printingManager.printTicket(newTicket)
                     if (!printSuccess) {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@MainActivity, "Printing failed. Check printer settings.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@MainActivity, R.string.toast_printing_failed, Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -349,35 +349,35 @@ class MainActivity : AppCompatActivity() {
     private fun validateForm(): Boolean {
         var isValid = true
         if (settingsManager.isNameRequired && nameEditText.text.isNullOrBlank()) {
-            nameInputLayout.error = "Name is required"
+            nameInputLayout.error = getString(R.string.error_name_required)
             isValid = false
         } else {
             nameInputLayout.error = null
         }
 
         if (settingsManager.isSurnameRequired && surnameEditText.text.isNullOrBlank()) {
-            surnameInputLayout.error = "Surname is required"
+            surnameInputLayout.error = getString(R.string.error_surname_required)
             isValid = false
         } else {
             surnameInputLayout.error = null
         }
 
         if (settingsManager.isCompanyRequired && companyEditText.text.isNullOrBlank()) {
-            companyInputLayout.error = "Company is required"
+            companyInputLayout.error = getString(R.string.error_company_required)
             isValid = false
         } else {
             companyInputLayout.error = null
         }
 
         if (settingsManager.isLicensePlateRequired && licensePlateEditText.text.isNullOrBlank()) {
-            licensePlateInputLayout.error = "License plate is required"
+            licensePlateInputLayout.error = getString(R.string.error_license_plate_required)
             isValid = false
         } else {
             licensePlateInputLayout.error = null
         }
 
         if (settingsManager.isDepartmentRequired && departmentAutoComplete.text.isNullOrBlank()) {
-            departmentMenu.error = "Department is required"
+            departmentMenu.error = getString(R.string.error_department_required)
             isValid = false
         } else {
             departmentMenu.error = null
@@ -454,7 +454,7 @@ class MainActivity : AppCompatActivity() {
         passwordInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
         builder.setView(passwordInput)
 
-        builder.setPositiveButton("OK") { dialog, _ ->
+        builder.setPositiveButton(R.string.button_ok) { dialog, _ ->
             val password = passwordInput.text.toString()
             if (password == settingsManager.adminPin) {
                 val intent = Intent(this, AdminActivity::class.java)
@@ -464,7 +464,7 @@ class MainActivity : AppCompatActivity() {
             }
             dialog.dismiss()
         }
-        builder.setNegativeButton("Cancel") { dialog, _ ->
+        builder.setNegativeButton(R.string.button_cancel) { dialog, _ ->
             dialog.cancel()
         }
 

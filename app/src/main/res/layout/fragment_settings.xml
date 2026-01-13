@@ -9,34 +9,34 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Users" />
+        android:text="@string/admin_title_users" />
 
     <Button
         android:id="@+id/display_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Display" />
+        android:text="@string/admin_title_display" />
 
     <Button
         android:id="@+id/live_audit_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Live Audit" />
+        android:text="@string/admin_title_live_audit" />
 
     <Button
         android:id="@+id/signature_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Signature" />
+        android:text="@string/header_signature" />
 
     <Button
         android:id="@+id/form_fields_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Form Fields" />
+        android:text="@string/admin_title_form_fields" />
 
 </LinearLayout>

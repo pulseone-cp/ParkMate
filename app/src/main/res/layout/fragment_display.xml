@@ -9,7 +9,7 @@
         android:id="@+id/welcome_heading_input_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Welcome Message Heading"
+        android:hint="@string/hint_welcome_heading"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Welcome Message Body"
+        android:hint="@string/hint_welcome_body"
         app:layout_constraintTop_toBottomOf="@+id/welcome_heading_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -44,7 +44,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Save Welcome Message"
+        android:text="@string/button_save_welcome_message"
         app:layout_constraintTop_toBottomOf="@+id/welcome_body_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -54,7 +54,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Ticket Validity (Hours)"
+        android:hint="@string/hint_ticket_validity"
         app:layout_constraintTop_toBottomOf="@+id/save_welcome_message_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -72,7 +72,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Save Validity"
+        android:text="@string/button_save_validity"
         app:layout_constraintTop_toBottomOf="@+id/ticket_validity_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -82,7 +82,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Visitor Registration"
+        android:text="@string/label_visitor_registration"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/save_validity_button"
         app:layout_constraintStart_toStartOf="parent" />
@@ -92,7 +92,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Allow registration without license plate"
+        android:text="@string/switch_allow_no_license_plate"
         app:layout_constraintTop_toBottomOf="@id/visitor_registration_section_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

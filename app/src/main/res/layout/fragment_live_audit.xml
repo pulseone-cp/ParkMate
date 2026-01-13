@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Enable Live Audit"
+        android:text="@string/label_enable_live_audit"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -20,7 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="Live Audit Endpoint URL"
+        android:hint="@string/hint_live_audit_endpoint"
         app:layout_constraintTop_toBottomOf="@+id/live_audit_switch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -37,7 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Save Audit Settings"
+        android:text="@string/button_save_audit_settings"
         app:layout_constraintTop_toBottomOf="@+id/live_audit_endpoint_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -48,7 +48,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Test Endpoint"
+        android:text="@string/button_test_endpoint"
         app:layout_constraintTop_toBottomOf="@+id/save_audit_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

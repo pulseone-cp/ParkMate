@@ -42,7 +42,7 @@ class PrintingFragment : Fragment() {
 
         printerSpinner = view.findViewById(R.id.printer_spinner)
         val discoverPrintersButton: Button = view.findViewById(R.id.discover_printers_button)
-        discoverPrintersButton.text = "Refresh Bluetooth Printers"
+        discoverPrintersButton.setText(R.string.button_refresh_printers)
         discoverPrintersButton.setOnClickListener { loadPairedPrinters() }
 
         val setDefaultPrinterButton: Button = view.findViewById(R.id.set_default_printer_button)
@@ -83,12 +83,12 @@ class PrintingFragment : Fragment() {
         val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
 
         if (bluetoothAdapter == null) {
-            Toast.makeText(context, "Bluetooth is not available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.toast_bluetooth_unavailable, Toast.LENGTH_SHORT).show()
             return
         }
 
         if (!bluetoothAdapter.isEnabled) {
-            Toast.makeText(context, "Please enable Bluetooth", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.toast_enable_bluetooth, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -119,9 +119,9 @@ class PrintingFragment : Fragment() {
             val selectedPrinter = printerList.find { it.first == selectedPrinterName }
             if (selectedPrinter != null) {
                 settingsManager.printerTarget = selectedPrinter.second
-                Toast.makeText(context, "$selectedPrinterName set as default", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.toast_printer_set_default, selectedPrinterName), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Could not save printer", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.toast_printer_save_error, Toast.LENGTH_SHORT).show()
             }
         }
     }

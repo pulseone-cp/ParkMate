@@ -19,20 +19,30 @@
         android:id="@+id/abort_activity_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Abort"
+        android:text="@string/button_abort"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/agree_button" />
+        app:layout_constraintEnd_toStartOf="@id/agree_button"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="8sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeStepGranularity="1sp"
+        android:lines="1" />
 
     <Button
         android:id="@+id/agree_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Agree"
+        android:text="@string/button_agree"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/abort_activity_button"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="8sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeStepGranularity="1sp"
+        android:lines="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

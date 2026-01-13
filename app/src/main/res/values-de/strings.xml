@@ -12,8 +12,24 @@
     <string name="button_test_print">Testdruck</string>
     <string name="admin_access_title">Admin-Zugang</string>
     <string name="toast_fill_all_fields">Bitte füllen Sie alle Felder aus</string>
+    <string name="toast_fill_required_fields">Bitte füllen Sie alle erforderlichen Felder korrekt aus</string>
     <string name="toast_incorrect_password">Falsches Passwort</string>
     <string name="action_admin">Administrator</string>
+    <string name="error_name_required">Vorname ist erforderlich</string>
+    <string name="error_surname_required">Nachname ist erforderlich</string>
+    <string name="error_company_required">Firma ist erforderlich</string>
+    <string name="error_license_plate_required">Kennzeichen ist erforderlich</string>
+    <string name="error_department_required">Abteilung ist erforderlich</string>
+    <string name="dialog_no_license_plate_title">Kein Kennzeichen</string>
+    <string name="dialog_no_license_plate_message">Sind Sie wirklich nicht mit dem Auto gekommen?</string>
+    <string name="button_yes">Ja</string>
+    <string name="button_no">Nein</string>
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Abbrechen</string>
+    <string name="toast_add_department_first">Bitte fügen Sie zuerst eine Abteilung hinzu</string>
+    <string name="toast_audit_failed">Audit-Meldung fehlgeschlagen</string>
+    <string name="toast_printing_failed">Drucken fehlgeschlagen. Drucker-Einstellungen prüfen.</string>
+    <string name="welcome_body_default">Bitte geben Sie unten Ihre Daten ein, um ein Parkticket zu erstellen.</string>
 
     <!-- Admin Menu -->
     <string name="admin_title_history">Verlauf</string>
@@ -22,6 +38,13 @@
     <string name="admin_title_departments">Abteilungen</string>
     <string name="admin_title_display">Anzeige</string>
     <string name="admin_exit">Admin-Menü verlassen</string>
+    <string name="button_scan_qr">QR-Code scannen</string>
+    <string name="button_clear_history">Verlauf löschen</string>
+    <string name="admin_title_live_audit">Live-Audit</string>
+    <string name="label_required">Erforderlich</string>
+    <string name="label_form_fields">Formularfelder</string>
+    <string name="admin_title_form_fields">Formularfelder</string>
+    <string name="admin_title_validate">Validieren</string>
 
     <!-- Departments Admin -->
     <string name="hint_new_department">Neue Abteilung</string>
@@ -31,12 +54,21 @@
     <string name="text_default">Standard</string>
     <string name="toast_department_removed">%1$s entfernt</string>
     <string name="toast_department_set_default">%1$s als Standard festgelegt</string>
+    <string name="toast_pdf_uploaded">PDF für %1$s hochgeladen</string>
+    <string name="error_dept_empty">Abteilungsname darf nicht leer sein</string>
+    <string name="error_dept_exists">Abteilung existiert bereits</string>
 
     <!-- Display Admin -->
     <string name="hint_welcome_heading">Willkommensnachricht Überschrift</string>
     <string name="hint_welcome_body">Willkommensnachricht Text</string>
     <string name="button_save_welcome_message">Willkommensnachricht speichern</string>
     <string name="toast_welcome_message_saved">Willkommensnachricht gespeichert</string>
+    <string name="hint_ticket_validity">Ticket-Gültigkeit (Stunden)</string>
+    <string name="button_save_validity">Gültigkeit speichern</string>
+    <string name="toast_validity_saved">Ticket-Gültigkeit gespeichert</string>
+    <string name="error_validity_range">Bitte geben Sie eine Zahl zwischen 1 und 999 ein</string>
+    <string name="label_visitor_registration">Besucherregistrierung</string>
+    <string name="switch_allow_no_license_plate">Registrierung ohne Kennzeichen erlauben</string>
 
     <!-- History Admin -->
     <string name="hint_search_history">Suche nach Name, Nachname oder Kennzeichen</string>
@@ -45,6 +77,13 @@
     <string name="toast_error_exporting_history">Fehler beim Exportieren des Verlaufs</string>
     <string name="share_history_title">Verlauf exportieren</string>
     <string name="ticket_timestamp_label">Zeitstempel</string>
+    <string name="button_view">Anzeigen</string>
+    <string name="button_print">Drucken</string>
+    <string name="toast_print_success">Ticket erfolgreich gedruckt</string>
+    <string name="toast_report_success">Ticket erfolgreich gemeldet</string>
+    <string name="toast_report_failed">Fehler beim Melden des Tickets</string>
+    <string name="toast_audit_endpoint_not_set">Live-Audit-Endpunkt nicht gesetzt</string>
+    <string name="text_visitor">BESUCHER</string>
 
     <!-- Printing Admin -->
     <string name="button_set_default_printer">Als Standarddrucker festlegen</string>
@@ -52,6 +91,10 @@
     <string name="button_save_imprint">Aufdruck speichern</string>
     <string name="toast_imprint_saved">Aufdrucktext gespeichert</string>
     <string name="toast_printer_set_default">%1$s als Standarddrucker festgelegt</string>
+    <string name="button_refresh_printers">Bluetooth-Drucker aktualisieren</string>
+    <string name="toast_bluetooth_unavailable">Bluetooth ist nicht verfügbar</string>
+    <string name="toast_enable_bluetooth">Bitte aktivieren Sie Bluetooth</string>
+    <string name="toast_printer_save_error">Drucker konnte nicht gespeichert werden</string>
 
     <!-- Users Admin -->
     <string name="hint_current_pin">Aktueller PIN</string>
@@ -69,4 +112,27 @@
     <string name="ticket_label_printed_at">Gedruckt: %1$s</string>
     <string name="ticket_label_valid_until">Gültig bis: %1$s</string>
 
+    <!-- Agreement / Signature -->
+    <string name="button_abort">Abbrechen</string>
+    <string name="button_agree">Zustimmen</string>
+    <string name="button_retry">Wiederholen</string>
+    <string name="button_accept">Akzeptieren</string>
+    <string name="headline_sign_here">Bitte hier unterschreiben</string>
+    <string name="toast_pdf_load_error">Fehler beim Laden der PDF: %1$s</string>
+    <string name="toast_sign_document">Bitte unterschreiben Sie das Dokument</string>
+    <string name="toast_signature_save_error">Unterschrift konnte nicht gespeichert werden.</string>
+    <string name="header_signature">Unterschrift</string>
+    <string name="header_signed_pdf">Signierte PDF</string>
+    <string name="toast_signature_file_not_found">Unterschriftsdatei nicht gefunden</string>
+    <string name="toast_no_signature_path">Kein Unterschriftspfad angegeben</string>
+
+    <!-- Live Audit Admin -->
+    <string name="label_enable_live_audit">Live-Audit aktivieren</string>
+    <string name="hint_live_audit_endpoint">Live-Audit-Endpunkt-URL</string>
+    <string name="button_save_audit_settings">Audit-Einstellungen speichern</string>
+    <string name="button_test_endpoint">Endpunkt testen</string>
+    <string name="toast_audit_settings_saved">Audit-Einstellungen gespeichert</string>
+    <string name="toast_endpoint_test_success">Endpunkttest erfolgreich</string>
+    <string name="toast_endpoint_test_failed">Endpunkttest fehlgeschlagen</string>
+    <string name="toast_enter_endpoint_url">Bitte geben Sie eine Endpunkt-URL ein</string>
 </resources>

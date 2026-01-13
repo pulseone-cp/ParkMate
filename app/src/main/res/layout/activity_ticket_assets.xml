@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Signature"
+            android:text="@string/header_signature"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
 
         <ImageView
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Signed PDF"
+            android:text="@string/header_signed_pdf"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
 
         <androidx.recyclerview.widget.RecyclerView

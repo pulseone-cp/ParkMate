@@ -9,7 +9,7 @@
         android:id="@+id/current_pin_input_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Current PIN"
+        android:hint="@string/hint_current_pin"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="New PIN"
+        android:hint="@string/hint_new_pin"
         app:layout_constraintTop_toBottomOf="@id/current_pin_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -43,7 +43,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="Confirm New PIN"
+        android:hint="@string/hint_confirm_new_pin"
         app:layout_constraintTop_toBottomOf="@id/new_pin_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -60,7 +60,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Change PIN"
+        android:text="@string/button_change_pin"
         app:layout_constraintTop_toBottomOf="@id/confirm_pin_input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

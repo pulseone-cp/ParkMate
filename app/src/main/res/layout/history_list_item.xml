@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -67,7 +68,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="View" />
+            android:text="@string/button_view"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeStepGranularity="1sp"
+            android:lines="1" />
 
         <Button
             android:id="@+id/print_button"
@@ -75,7 +81,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Print" />
+            android:text="@string/button_print"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeStepGranularity="1sp"
+            android:lines="1" />
 
     </LinearLayout>
 

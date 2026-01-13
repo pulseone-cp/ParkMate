@@ -3,21 +3,21 @@
     <item
         android:id="@+id/nav_history"
         android:icon="@drawable/ic_history"
-        android:title="History" />
+        android:title="@string/admin_title_history" />
     <item
         android:id="@+id/nav_validate"
         android:icon="@drawable/ic_validate"
-        android:title="Validate" />
+        android:title="@string/admin_title_validate" />
     <item
         android:id="@+id/nav_printing"
         android:icon="@drawable/ic_print"
-        android:title="Printing" />
+        android:title="@string/admin_title_printing" />
     <item
         android:id="@+id/nav_departments"
         android:icon="@drawable/ic_departments"
-        android:title="Departments" />
+        android:title="@string/admin_title_departments" />
     <item
         android:id="@+id/nav_settings"
         android:icon="@drawable/ic_settings"
-        android:title="Settings" />
+        android:title="@string/admin_title_display" />
 </menu>

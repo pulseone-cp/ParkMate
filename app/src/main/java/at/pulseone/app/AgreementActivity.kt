@@ -128,7 +128,7 @@ class AgreementActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "Error loading PDF: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_pdf_load_error, e.message), Toast.LENGTH_LONG).show()
         }
     }
 

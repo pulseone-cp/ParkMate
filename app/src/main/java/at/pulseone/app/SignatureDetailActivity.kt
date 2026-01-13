@@ -24,11 +24,11 @@ class SignatureDetailActivity : AppCompatActivity() {
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 imageView.setImageBitmap(bitmap)
             } else {
-                Toast.makeText(this, "Signature file not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_signature_file_not_found, Toast.LENGTH_SHORT).show()
                 finish()
             }
         } else {
-            Toast.makeText(this, "No signature path provided", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.toast_no_signature_path, Toast.LENGTH_SHORT).show()
             finish()
         }
 

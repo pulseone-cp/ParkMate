@@ -43,9 +43,9 @@ class DisplayFragment : Fragment() {
             val validityHours = ticketValidityEditText.text.toString().toIntOrNull()
             if (validityHours != null && validityHours in 1..999) {
                 settingsManager.ticketValidityHours = validityHours
-                Toast.makeText(context, "Ticket validity saved", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.toast_validity_saved, Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Please enter a number between 1 and 999", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.error_validity_range, Toast.LENGTH_SHORT).show()
             }
         }
 

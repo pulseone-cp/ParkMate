@@ -39,7 +39,7 @@ class LiveAuditFragment : Fragment() {
         saveAuditButton.setOnClickListener {
             settingsManager.liveAuditEnabled = liveAuditSwitch.isChecked
             settingsManager.liveAuditEndpoint = liveAuditEndpointEditText.text.toString()
-            Toast.makeText(context, "Audit settings saved", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.toast_audit_settings_saved, Toast.LENGTH_SHORT).show()
         }
 
         testEndpointButton.setOnClickListener {
@@ -64,13 +64,13 @@ class LiveAuditFragment : Fragment() {
                     )
                     val success = auditManager.reportTicket(testTicket, endpointUrl)
                     if (success) {
-                        Toast.makeText(context, "Endpoint test successful", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.toast_endpoint_test_success, Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, "Endpoint test failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.toast_endpoint_test_failed, Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
-                Toast.makeText(context, "Please enter an endpoint URL", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.toast_enter_endpoint_url, Toast.LENGTH_SHORT).show()
             }
         }
 

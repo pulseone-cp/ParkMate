@@ -50,7 +50,7 @@ class SignatureActivity : AppCompatActivity() {
 
         acceptButton.setOnClickListener {
             if (signatureView.isBlank()) {
-                Toast.makeText(this, "Please sign the document", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_sign_document, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -68,7 +68,7 @@ class SignatureActivity : AppCompatActivity() {
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             } else {
-                Toast.makeText(this, "Could not save signature.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_signature_save_error, Toast.LENGTH_SHORT).show()
             }
         }
     }

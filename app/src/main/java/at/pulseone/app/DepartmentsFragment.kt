@@ -32,7 +32,7 @@ class DepartmentsFragment : Fragment() {
             outputStream.close()
             settingsManager.setDepartmentPdfPath(department, file.absolutePath)
             departmentsAdapter.notifyDataSetChanged()
-            Toast.makeText(context, "PDF uploaded for $department", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.toast_pdf_uploaded, department), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -78,10 +78,16 @@ class DepartmentsFragment : Fragment() {
         addDepartmentButton.setOnClickListener {
             val newDepartment = newDepartmentEditText.text.toString()
             if (newDepartment.isNotBlank()) {
-                departments.add(newDepartment)
-                settingsManager.departments = departments.toSet()
-                departmentsAdapter.notifyDataSetChanged()
-                newDepartmentEditText.text?.clear()
+                if (departments.contains(newDepartment)) {
+                    Toast.makeText(context, R.string.error_dept_exists, Toast.LENGTH_SHORT).show()
+                } else {
+                    departments.add(newDepartment)
+                    settingsManager.departments = departments.toSet()
+                    departmentsAdapter.notifyDataSetChanged()
+                    newDepartmentEditText.text?.clear()
+                }
+            } else {
+                Toast.makeText(context, R.string.error_dept_empty, Toast.LENGTH_SHORT).show()
             }
         }
 

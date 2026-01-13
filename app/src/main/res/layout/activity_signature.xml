@@ -10,7 +10,7 @@
         android:id="@+id/headline_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Please sign here"
+        android:text="@string/headline_sign_here"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:gravity="center"
         android:padding="16dp"
@@ -57,7 +57,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Abort" />
+            android:text="@string/button_abort"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeStepGranularity="1sp"
+            android:lines="1" />
 
         <Button
             android:id="@+id/retry_button"
@@ -65,7 +70,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Retry" />
+            android:text="@string/button_retry"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeStepGranularity="1sp"
+            android:lines="1" />
 
         <Button
             android:id="@+id/accept_button"
@@ -73,7 +83,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Accept" />
+            android:text="@string/button_accept"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeStepGranularity="1sp"
+            android:lines="1" />
 
     </LinearLayout>
 

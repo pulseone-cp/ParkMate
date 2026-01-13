@@ -45,7 +45,7 @@ class HistoryAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val ticket = tickets[position]
-        holder.licensePlateTextView.text = if (ticket.licensePlate.isBlank()) "BESUCHER" else ticket.licensePlate
+        holder.licensePlateTextView.text = if (ticket.licensePlate.isBlank()) holder.itemView.context.getString(R.string.text_visitor) else ticket.licensePlate
         holder.nameTextView.text = "${ticket.name} ${ticket.surname}"
         holder.companyTextView.text = ticket.company
         holder.departmentTextView.text = ticket.department
@@ -77,9 +77,9 @@ class HistoryAdapter(
                 val success = printingManager.printTicket(ticket)
                 withContext(Dispatchers.Main) {
                     if (success) {
-                        Toast.makeText(holder.itemView.context, "Ticket printed successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(holder.itemView.context, R.string.toast_print_success, Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(holder.itemView.context, "Printing failed. Check printer settings.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(holder.itemView.context, R.string.toast_printing_failed, Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -109,12 +109,12 @@ class HistoryAdapter(
                         repository.updateTicket(updatedTicket)
                         tickets[position] = updatedTicket
                         notifyItemChanged(position)
-                        Toast.makeText(holder.itemView.context, "Ticket reported successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(holder.itemView.context, R.string.toast_report_success, Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(holder.itemView.context, "Failed to report ticket", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(holder.itemView.context, R.string.toast_report_failed, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(holder.itemView.context, "Live audit endpoint not set", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(holder.itemView.context, R.string.toast_audit_endpoint_not_set, Toast.LENGTH_SHORT).show()
                 }
             }
         }
