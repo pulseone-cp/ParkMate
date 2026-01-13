@@ -38,10 +38,10 @@ class AuditManager {
                     } else null
                 }
 
-                val payload = mutableMapOf<String, Any?>(
-                    "ticket" to ticket,
-                    "signatureImage" to signatureBase64,
-                    "signedDocument" to pdfBase64
+                val payload = AuditPayload(
+                    ticket = ticket,
+                    signatureImage = signatureBase64,
+                    signedDocument = pdfBase64
                 )
 
                 val jsonPayload = gson.toJson(payload)
