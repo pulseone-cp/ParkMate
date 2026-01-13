@@ -3,6 +3,7 @@ package at.pulseone.app
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -11,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import androidx.core.content.FileProvider
@@ -31,6 +33,7 @@ class AgreementActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_agreement)
 
@@ -78,8 +81,8 @@ class AgreementActivity : AppCompatActivity() {
             val page = renderer.openPage(pageCount - 1) // Get the last page
             val originalWidth = page.width
             val originalHeight = page.height
-
             val bitmap = Bitmap.createBitmap(originalWidth, originalHeight, Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(Color.WHITE)
             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
             
             val previewFile = File(cacheDir, "pdf_preview.png")
@@ -107,6 +110,7 @@ class AgreementActivity : AppCompatActivity() {
             for (i in 0 until pdfRenderer!!.pageCount) {
                 val page = pdfRenderer!!.openPage(i)
                 val bitmap = Bitmap.createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)
+                bitmap.eraseColor(Color.WHITE)
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 
                 val imageView = ImageView(this)

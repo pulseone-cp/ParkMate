@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
@@ -36,6 +37,7 @@ object PdfSignatureUtils {
                 val canvas = pdfPage.canvas
 
                 val pageBitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                pageBitmap.eraseColor(Color.WHITE)
                 page.render(pageBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_PRINT)
                 canvas.drawBitmap(pageBitmap, 0f, 0f, null)
 

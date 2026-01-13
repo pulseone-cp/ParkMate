@@ -2,6 +2,7 @@ package at.pulseone.app
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Bundle
@@ -83,6 +84,7 @@ class TicketAssetsActivity : AppCompatActivity() {
                 for (i in 0 until pdfRenderer.pageCount) {
                     val page = pdfRenderer.openPage(i)
                     val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                    bitmap.eraseColor(Color.WHITE)
                     page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                     bitmaps.add(bitmap)
                     page.close()
