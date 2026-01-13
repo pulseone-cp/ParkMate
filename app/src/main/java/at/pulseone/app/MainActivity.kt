@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.StrictMode
 import android.text.InputFilter
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,9 +20,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Calendar
@@ -30,9 +34,15 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
     private lateinit var nameEditText: TextInputEditText
+    private lateinit var nameInputLayout: TextInputLayout
     private lateinit var surnameEditText: TextInputEditText
+    private lateinit var surnameInputLayout: TextInputLayout
+    private lateinit var companyEditText: TextInputEditText
+    private lateinit var companyInputLayout: TextInputLayout
     private lateinit var licensePlateEditText: TextInputEditText
+    private lateinit var licensePlateInputLayout: TextInputLayout
     private lateinit var departmentAutoComplete: AutoCompleteTextView
+    private lateinit var departmentMenu: TextInputLayout
     private lateinit var confirmButton: Button
     private lateinit var testPrintButton: Button
     private lateinit var welcomeHeadingTextView: TextView
@@ -47,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     data class PendingTicketData(
         val name: String,
         val surname: String,
+        val company: String?,
         val licensePlate: String,
         val department: String,
         val departments: List<String>,
@@ -59,17 +70,18 @@ class MainActivity : AppCompatActivity() {
             val signatureBounds = result.data?.getParcelableExtra<RectF>("SIGNATURE_BOUNDS")
             pendingTicketData?.let { data ->
                 var pdfPath = settingsManager.getDepartmentPdfPath(data.department)
-                
+
                 if (settingsManager.renderSignatureOnPdf && signaturePath != null && pdfPath != null && signatureBounds != null) {
                     val signedPdfPath = PdfSignatureUtils.renderSignatureOnPdf(this, pdfPath, signaturePath, signatureBounds)
                     if (signedPdfPath != null) {
                         pdfPath = signedPdfPath
                     }
                 }
-                
+
                 createAndPrintTicket(
                     data.name,
                     data.surname,
+                    data.company,
                     data.licensePlate,
                     data.department,
                     data.departments,
@@ -96,9 +108,15 @@ class MainActivity : AppCompatActivity() {
         auditManager = AuditManager()
 
         nameEditText = findViewById(R.id.name_edit_text)
+        nameInputLayout = findViewById(R.id.name_input_layout)
         surnameEditText = findViewById(R.id.surname_edit_text)
+        surnameInputLayout = findViewById(R.id.surname_input_layout)
+        companyEditText = findViewById(R.id.company_edit_text)
+        companyInputLayout = findViewById(R.id.company_input_layout)
         licensePlateEditText = findViewById(R.id.license_plate_edit_text)
+        licensePlateInputLayout = findViewById(R.id.license_plate_input_layout)
         departmentAutoComplete = findViewById(R.id.department_autocomplete)
+        departmentMenu = findViewById(R.id.department_menu)
         confirmButton = findViewById(R.id.confirm_button)
         testPrintButton = findViewById(R.id.test_print_button)
         welcomeHeadingTextView = findViewById(R.id.welcome_heading_text_view)
@@ -106,6 +124,7 @@ class MainActivity : AppCompatActivity() {
 
         loadWelcomeMessage()
         setupLicensePlateInputFilter()
+        setupFormFields()
 
         val departments = settingsManager.departments?.toList() ?: emptyList()
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, departments)
@@ -119,17 +138,18 @@ class MainActivity : AppCompatActivity() {
         confirmButton.setOnClickListener {
             val name = nameEditText.text.toString()
             val surname = surnameEditText.text.toString()
+            val company = companyEditText.text.toString()
             val licensePlate = licensePlateEditText.text.toString()
             val department = departmentAutoComplete.text.toString()
 
-            if (name.isNotBlank() && surname.isNotBlank() && department.isNotBlank()) {
+            if (validateForm()) {
                 if (licensePlate.isBlank()) {
                     if (settingsManager.allowNoLicensePlate) {
                         AlertDialog.Builder(this)
                             .setTitle("No License Plate")
                             .setMessage("Did you really not come by car?")
                             .setPositiveButton("Yes") { _, _ ->
-                                checkAgreementAndProceed(name, surname, "", department, departments, defaultDepartment)
+                                checkAgreementAndProceed(name, surname, company, "", department, departments, defaultDepartment)
                             }
                             .setNegativeButton("No", null)
                             .show()
@@ -137,10 +157,8 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this, R.string.toast_fill_all_fields, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    checkAgreementAndProceed(name, surname, licensePlate, department, departments, defaultDepartment)
+                    checkAgreementAndProceed(name, surname, company, licensePlate, department, departments, defaultDepartment)
                 }
-            } else {
-                Toast.makeText(this, R.string.toast_fill_all_fields, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -152,6 +170,7 @@ class MainActivity : AppCompatActivity() {
 
             val randomName = listOf("John", "Jane", "Peter", "Mary", "Chris", "Sarah").random()
             val randomSurname = listOf("Smith", "Doe", "Jones", "Williams", "Brown", "Davis").random()
+            val randomCompany = listOf("Acme Inc.", "Wayne Enterprises", "Stark Industries", "Cyberdyne Systems").random()
             val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             val randomLicense = (1..8)
                 .map { allowedChars.random() }
@@ -162,6 +181,7 @@ class MainActivity : AppCompatActivity() {
 
             nameEditText.setText(randomName)
             surnameEditText.setText(randomSurname)
+            companyEditText.setText(randomCompany)
             licensePlateEditText.setText(randomLicense)
             departmentAutoComplete.setText(randomDepartment, false)
 
@@ -172,6 +192,7 @@ class MainActivity : AppCompatActivity() {
     private fun createAndPrintTicket(
         name: String,
         surname: String,
+        company: String?,
         licensePlate: String,
         department: String,
         departments: List<String>,
@@ -189,6 +210,7 @@ class MainActivity : AppCompatActivity() {
             val ticket = ParkingTicket(
                 name = name,
                 surname = surname,
+                company = company,
                 licensePlate = licensePlate,
                 department = department,
                 timestamp = timestamp,
@@ -210,6 +232,7 @@ class MainActivity : AppCompatActivity() {
             // Clear fields
             nameEditText.text?.clear()
             surnameEditText.text?.clear()
+            companyEditText.text?.clear()
             licensePlateEditText.text?.clear()
             if (defaultDepartment != null && departments.contains(defaultDepartment)) {
                 departmentAutoComplete.setText(defaultDepartment, false)
@@ -222,6 +245,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAgreementAndProceed(
         name: String,
         surname: String,
+        company: String?,
         licensePlate: String,
         department: String,
         departments: List<String>,
@@ -231,18 +255,100 @@ class MainActivity : AppCompatActivity() {
         if (pdfPath != null) {
             val pdfFile = File(pdfPath)
             if (pdfFile.exists()) {
-                pendingTicketData = PendingTicketData(name, surname, licensePlate, department, departments, defaultDepartment)
+                pendingTicketData = PendingTicketData(name, surname, company, licensePlate, department, departments, defaultDepartment)
                 val pdfUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.provider", pdfFile)
                 val intent = Intent(this, AgreementActivity::class.java)
                 intent.putExtra("PDF_URI", pdfUri)
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 agreementLauncher.launch(intent)
             } else {
-                createAndPrintTicket(name, surname, licensePlate, department, departments, defaultDepartment)
+                createAndPrintTicket(name, surname, company, licensePlate, department, departments, defaultDepartment)
             }
         } else {
-            createAndPrintTicket(name, surname, licensePlate, department, departments, defaultDepartment)
+            createAndPrintTicket(name, surname, company, licensePlate, department, departments, defaultDepartment)
         }
+    }
+
+    private fun setupFormFields() {
+        nameInputLayout.visibility = if (settingsManager.isNameEnabled) View.VISIBLE else View.GONE
+        if (settingsManager.isNameRequired) {
+            nameInputLayout.hint = SpannableStringBuilder("* ").apply { 
+                setSpan(ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, android.R.color.holo_red_dark)), 0, 1, 0)
+                append(getString(R.string.hint_name))
+            }
+        }
+
+        surnameInputLayout.visibility = if (settingsManager.isSurnameEnabled) View.VISIBLE else View.GONE
+        if (settingsManager.isSurnameRequired) {
+            surnameInputLayout.hint = SpannableStringBuilder("* ").apply { 
+                setSpan(ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, android.R.color.holo_red_dark)), 0, 1, 0)
+                append(getString(R.string.hint_surname))
+            }
+        }
+
+        companyInputLayout.visibility = if (settingsManager.isCompanyEnabled) View.VISIBLE else View.GONE
+        if (settingsManager.isCompanyRequired) {
+            companyInputLayout.hint = SpannableStringBuilder("* ").apply { 
+                setSpan(ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, android.R.color.holo_red_dark)), 0, 1, 0)
+                append(getString(R.string.hint_company))
+            }
+        }
+
+        licensePlateInputLayout.visibility = if (settingsManager.isLicensePlateEnabled) View.VISIBLE else View.GONE
+        if (settingsManager.isLicensePlateRequired) {
+            licensePlateInputLayout.hint = SpannableStringBuilder("* ").apply { 
+                setSpan(ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, android.R.color.holo_red_dark)), 0, 1, 0)
+                append(getString(R.string.hint_license_plate))
+            }
+        }
+
+        departmentMenu.visibility = if (settingsManager.isDepartmentEnabled) View.VISIBLE else View.GONE
+        if (settingsManager.isDepartmentRequired) {
+            departmentMenu.hint = SpannableStringBuilder("* ").apply { 
+                setSpan(ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, android.R.color.holo_red_dark)), 0, 1, 0)
+                append(getString(R.string.hint_department))
+            }
+        }
+    }
+
+    private fun validateForm(): Boolean {
+        var isValid = true
+        if (settingsManager.isNameRequired && nameEditText.text.isNullOrBlank()) {
+            nameInputLayout.error = "Name is required"
+            isValid = false
+        } else {
+            nameInputLayout.error = null
+        }
+
+        if (settingsManager.isSurnameRequired && surnameEditText.text.isNullOrBlank()) {
+            surnameInputLayout.error = "Surname is required"
+            isValid = false
+        } else {
+            surnameInputLayout.error = null
+        }
+
+        if (settingsManager.isCompanyRequired && companyEditText.text.isNullOrBlank()) {
+            companyInputLayout.error = "Company is required"
+            isValid = false
+        } else {
+            companyInputLayout.error = null
+        }
+
+        if (settingsManager.isLicensePlateRequired && licensePlateEditText.text.isNullOrBlank()) {
+            licensePlateInputLayout.error = "License plate is required"
+            isValid = false
+        } else {
+            licensePlateInputLayout.error = null
+        }
+
+        if (settingsManager.isDepartmentRequired && departmentAutoComplete.text.isNullOrBlank()) {
+            departmentMenu.error = "Department is required"
+            isValid = false
+        } else {
+            departmentMenu.error = null
+        }
+
+        return isValid
     }
 
     private fun setupLicensePlateInputFilter() {

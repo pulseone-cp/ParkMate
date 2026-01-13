@@ -26,6 +26,7 @@ class HistoryAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val licensePlateTextView: TextView = itemView.findViewById(R.id.license_plate_text_view)
         val nameTextView: TextView = itemView.findViewById(R.id.name_text_view)
+        val companyTextView: TextView = itemView.findViewById(R.id.company_text_view)
         val departmentTextView: TextView = itemView.findViewById(R.id.department_text_view)
         val timestampTextView: TextView = itemView.findViewById(R.id.timestamp_text_view)
         val viewButton: Button = itemView.findViewById(R.id.view_button)
@@ -44,6 +45,7 @@ class HistoryAdapter(
         val ticket = tickets[position]
         holder.licensePlateTextView.text = if (ticket.licensePlate.isBlank()) "BESUCHER" else ticket.licensePlate
         holder.nameTextView.text = "${ticket.name} ${ticket.surname}"
+        holder.companyTextView.text = ticket.company
         holder.departmentTextView.text = ticket.department
         holder.timestampTextView.text = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(ticket.timestamp)
 

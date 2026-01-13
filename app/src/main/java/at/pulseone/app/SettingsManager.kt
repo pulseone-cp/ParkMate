@@ -55,6 +55,50 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getBoolean("render_signature_on_pdf", false)
         set(value) = sharedPreferences.edit().putBoolean("render_signature_on_pdf", value).apply()
 
+    var signatureStrokeWidth: Float
+        get() = sharedPreferences.getFloat("signature_stroke_width", 8f)
+        set(value) = sharedPreferences.edit().putFloat("signature_stroke_width", value).apply()
+
+    var isNameEnabled: Boolean
+        get() = sharedPreferences.getBoolean("is_name_enabled", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_name_enabled", value).apply()
+
+    var isNameRequired: Boolean
+        get() = sharedPreferences.getBoolean("is_name_required", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_name_required", value).apply()
+
+    var isSurnameEnabled: Boolean
+        get() = sharedPreferences.getBoolean("is_surname_enabled", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_surname_enabled", value).apply()
+
+    var isSurnameRequired: Boolean
+        get() = sharedPreferences.getBoolean("is_surname_required", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_surname_required", value).apply()
+
+    var isCompanyEnabled: Boolean
+        get() = sharedPreferences.getBoolean("is_company_enabled", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_company_enabled", value).apply()
+
+    var isCompanyRequired: Boolean
+        get() = sharedPreferences.getBoolean("is_company_required", false)
+        set(value) = sharedPreferences.edit().putBoolean("is_company_required", value).apply()
+
+    var isLicensePlateEnabled: Boolean
+        get() = sharedPreferences.getBoolean("is_license_plate_enabled", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_license_plate_enabled", value).apply()
+
+    var isLicensePlateRequired: Boolean
+        get() = sharedPreferences.getBoolean("is_license_plate_required", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_license_plate_required", value).apply()
+
+    var isDepartmentEnabled: Boolean
+        get() = sharedPreferences.getBoolean("is_department_enabled", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_department_enabled", value).apply()
+
+    var isDepartmentRequired: Boolean
+        get() = sharedPreferences.getBoolean("is_department_required", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_department_required", value).apply()
+
     fun getDepartmentPdfPath(department: String): String? {
         return sharedPreferences.getString("pdf_path_$department", null)
     }

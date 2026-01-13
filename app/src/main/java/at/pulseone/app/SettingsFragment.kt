@@ -18,6 +18,8 @@ class SettingsFragment : Fragment() {
         val usersButton: Button = view.findViewById(R.id.users_button)
         val displayButton: Button = view.findViewById(R.id.display_button)
         val liveAuditButton: Button = view.findViewById(R.id.live_audit_button)
+        val signatureButton: Button = view.findViewById(R.id.signature_button)
+        val formFieldsButton: Button = view.findViewById(R.id.form_fields_button)
 
         usersButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -36,6 +38,20 @@ class SettingsFragment : Fragment() {
         liveAuditButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, LiveAuditFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        signatureButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, SignatureSettingsFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        formFieldsButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, FormFieldsFragment())
                 .addToBackStack(null)
                 .commit()
         }

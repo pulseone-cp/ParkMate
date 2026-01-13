@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Form Fields"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/name_enabled_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/name_required_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Required" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/surname_enabled_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Surname" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/surname_required_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Required" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/company_enabled_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Company" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/company_required_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Required" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/license_plate_enabled_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="License Plate" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/license_plate_required_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Required" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/department_enabled_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Department" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/department_required_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Required" />
+
+</LinearLayout>

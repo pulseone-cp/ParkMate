@@ -13,6 +13,7 @@ data class ParkingTicket(
     val surname: String,
     val licensePlate: String,
     val department: String,
+    val company: String? = null, // Added company field
     val timestamp: Date,
     val guid: String = UUID.randomUUID().toString(),
     val isReported: Boolean = false,

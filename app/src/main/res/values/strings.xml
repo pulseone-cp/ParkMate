@@ -7,6 +7,7 @@
     <string name="hint_surname">Surname</string>
     <string name="hint_license_plate">License Plate Number</string>
     <string name="hint_department">Department</string>
+    <string name="hint_company">Company</string>
     <string name="button_confirm_print">Confirm and Print Ticket</string>
     <string name="button_test_print">Test Print</string>
     <string name="admin_access_title">Admin Access</string>

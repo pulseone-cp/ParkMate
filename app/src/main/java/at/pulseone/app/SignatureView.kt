@@ -14,12 +14,13 @@ import android.widget.ImageView
 
 class SignatureView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
+    private val settingsManager = SettingsManager(context)
     private val paint = Paint().apply {
         isAntiAlias = true
         color = Color.BLACK
         style = Paint.Style.STROKE
         strokeJoin = Paint.Join.ROUND
-        strokeWidth = 12f // Increased stroke width for better visibility
+        strokeWidth = settingsManager.signatureStrokeWidth
     }
 
     private val path = Path()

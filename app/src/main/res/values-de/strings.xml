@@ -7,6 +7,7 @@
     <string name="hint_surname">Nachname</string>
     <string name="hint_license_plate">Kennzeichen</string>
     <string name="hint_department">Abteilung</string>
+    <string name="hint_company">Firma</string>
     <string name="button_confirm_print">Bestätigen und Ticket drucken</string>
     <string name="button_test_print">Testdruck</string>
     <string name="admin_access_title">Admin-Zugang</string>
