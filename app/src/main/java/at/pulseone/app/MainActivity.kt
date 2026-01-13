@@ -25,7 +25,9 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Calendar
 import java.util.Date
@@ -47,10 +49,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var testPrintButton: Button
     private lateinit var welcomeHeadingTextView: TextView
     private lateinit var welcomeBodyTextView: TextView
+    private lateinit var loadingOverlay: View
     private lateinit var settingsManager: SettingsManager
     private lateinit var repository: ParkingTicketRepository
     private lateinit var printingManager: PrintingManager
     private lateinit var auditManager: AuditManager
+    private var departments: List<String> = emptyList()
 
     private var pendingTicketData: PendingTicketData? = null
 
@@ -71,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             pendingTicketData?.let { data ->
                 var pdfPath = settingsManager.getDepartmentPdfPath(data.department)
 
-                if (settingsManager.renderSignatureOnPdf && signaturePath != null && pdfPath != null && signatureBounds != null) {
+                if (signaturePath != null && pdfPath != null && signatureBounds != null) {
                     val signedPdfPath = PdfSignatureUtils.renderSignatureOnPdf(this, pdfPath, signaturePath, signatureBounds)
                     if (signedPdfPath != null) {
                         pdfPath = signedPdfPath
@@ -121,19 +125,12 @@ class MainActivity : AppCompatActivity() {
         testPrintButton = findViewById(R.id.test_print_button)
         welcomeHeadingTextView = findViewById(R.id.welcome_heading_text_view)
         welcomeBodyTextView = findViewById(R.id.welcome_body_text_view)
+        loadingOverlay = findViewById(R.id.loading_overlay)
 
         loadWelcomeMessage()
+        loadDepartments()
         setupLicensePlateInputFilter()
         setupFormFields()
-
-        val departments = settingsManager.departments?.toList() ?: emptyList()
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, departments)
-        departmentAutoComplete.setAdapter(adapter)
-
-        val defaultDepartment = settingsManager.defaultDepartment
-        if (defaultDepartment != null && departments.contains(defaultDepartment)) {
-            departmentAutoComplete.setText(defaultDepartment, false)
-        }
 
         confirmButton.setOnClickListener {
             val name = nameEditText.text.toString()
@@ -141,6 +138,7 @@ class MainActivity : AppCompatActivity() {
             val company = companyEditText.text.toString()
             val licensePlate = licensePlateEditText.text.toString()
             val department = departmentAutoComplete.text.toString()
+            val defaultDepartment = settingsManager.defaultDepartment
 
             if (validateForm()) {
                 if (licensePlate.isBlank()) {
@@ -159,6 +157,8 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     checkAgreementAndProceed(name, surname, company, licensePlate, department, departments, defaultDepartment)
                 }
+            } else {
+                Toast.makeText(this, "Please fill all required fields correctly", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -189,6 +189,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadWelcomeMessage()
+        loadDepartments()
+    }
+
+    private fun loadDepartments() {
+        departments = settingsManager.departments?.toList() ?: emptyList()
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, departments)
+        departmentAutoComplete.setAdapter(adapter)
+
+        val defaultDepartment = settingsManager.defaultDepartment
+        if (defaultDepartment != null && departments.contains(defaultDepartment)) {
+            if (departmentAutoComplete.text.isNullOrBlank()) {
+                departmentAutoComplete.setText(defaultDepartment, false)
+            }
+        }
+    }
+
     private fun createAndPrintTicket(
         name: String,
         surname: String,
@@ -200,44 +219,60 @@ class MainActivity : AppCompatActivity() {
         signaturePath: String? = null,
         pdfPath: String? = null
     ) {
+        loadingOverlay.visibility = View.VISIBLE
         lifecycleScope.launch {
-            val timestamp = Date()
-            val calendar = Calendar.getInstance()
-            calendar.time = timestamp
-            calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
-            val validUntil = calendar.time
+            try {
+                val timestamp = Date()
+                val calendar = Calendar.getInstance()
+                calendar.time = timestamp
+                calendar.add(Calendar.HOUR_OF_DAY, settingsManager.ticketValidityHours)
+                val validUntil = calendar.time
 
-            val ticket = ParkingTicket(
-                name = name,
-                surname = surname,
-                company = company,
-                licensePlate = licensePlate,
-                department = department,
-                timestamp = timestamp,
-                validFrom = timestamp,
-                validUntil = validUntil,
-                signaturePath = signaturePath,
-                pdfPath = pdfPath
-            )
-            val newTicket = repository.addTicket(ticket)
-            printingManager.printTicket(newTicket)
+                val ticket = ParkingTicket(
+                    name = name,
+                    surname = surname,
+                    company = company,
+                    licensePlate = licensePlate,
+                    department = department,
+                    timestamp = timestamp,
+                    validFrom = timestamp,
+                    validUntil = validUntil,
+                    signaturePath = signaturePath,
+                    pdfPath = pdfPath
+                )
+                val newTicket = repository.addTicket(ticket)
 
-            if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
-                val success = auditManager.reportTicket(newTicket, settingsManager.liveAuditEndpoint!!)
-                if (success) {
-                    repository.updateTicket(newTicket.copy(isReported = true))
+                if (settingsManager.liveAuditEnabled && !settingsManager.liveAuditEndpoint.isNullOrBlank()) {
+                    val success = auditManager.reportTicket(newTicket, settingsManager.liveAuditEndpoint!!)
+                    if (success) {
+                        repository.updateTicket(newTicket.copy(isReported = true))
+                    } else {
+                        Toast.makeText(this@MainActivity, "Audit reporting failed", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
 
-            // Clear fields
-            nameEditText.text?.clear()
-            surnameEditText.text?.clear()
-            companyEditText.text?.clear()
-            licensePlateEditText.text?.clear()
-            if (defaultDepartment != null && departments.contains(defaultDepartment)) {
-                departmentAutoComplete.setText(defaultDepartment, false)
-            } else {
-                departmentAutoComplete.text?.clear()
+                // Print in a parallel thread (coroutine) "hoping for the best"
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val printSuccess = printingManager.printTicket(newTicket)
+                    if (!printSuccess) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@MainActivity, "Printing failed. Check printer settings.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
+                // Clear fields
+                nameEditText.text?.clear()
+                surnameEditText.text?.clear()
+                companyEditText.text?.clear()
+                licensePlateEditText.text?.clear()
+                if (defaultDepartment != null && departments.contains(defaultDepartment)) {
+                    departmentAutoComplete.setText(defaultDepartment, false)
+                } else {
+                    departmentAutoComplete.text?.clear()
+                }
+            } finally {
+                loadingOverlay.visibility = View.GONE
             }
         }
     }
@@ -384,11 +419,15 @@ class MainActivity : AppCompatActivity() {
         if (!heading.isNullOrBlank()) {
             welcomeHeadingTextView.text = heading
             welcomeHeadingTextView.visibility = View.VISIBLE
+        } else {
+            welcomeHeadingTextView.visibility = View.GONE
         }
 
         if (!body.isNullOrBlank()) {
             welcomeBodyTextView.text = body
             welcomeBodyTextView.visibility = View.VISIBLE
+        } else {
+            welcomeBodyTextView.visibility = View.GONE
         }
     }
 

@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -18,47 +17,49 @@ class AuditManager {
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
                 connection.doOutput = true
+
+                val payload = AuditPayload(
+                    ticket = ticket,
+                    signature = fileToBase64(ticket.signaturePath),
+                    document = fileToBase64(ticket.pdfPath)
+                )
 
                 val gson = GsonBuilder()
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                     .create()
+                val json = gson.toJson(payload)
+                val bytes = json.toByteArray(Charsets.UTF_8)
 
-                val signatureBase64 = ticket.signaturePath?.let { path ->
-                    val file = File(path)
-                    if (file.exists()) {
-                        Base64.encodeToString(file.readBytes(), Base64.NO_WRAP)
-                    } else null
+                connection.setFixedLengthStreamingMode(bytes.size)
+                connection.outputStream.use { os ->
+                    os.write(bytes)
+                    os.flush()
                 }
-
-                val pdfBase64 = ticket.pdfPath?.let { path ->
-                    val file = File(path)
-                    if (file.exists()) {
-                        Base64.encodeToString(file.readBytes(), Base64.NO_WRAP)
-                    } else null
-                }
-
-                val payload = AuditPayload(
-                    ticket = ticket,
-                    signatureImage = signatureBase64,
-                    signedDocument = pdfBase64
-                )
-
-                val jsonPayload = gson.toJson(payload)
-
-                val writer = OutputStreamWriter(connection.outputStream)
-                writer.write(jsonPayload)
-                writer.flush()
-                writer.close()
 
                 val responseCode = connection.responseCode
                 connection.disconnect()
 
-                responseCode == HttpURLConnection.HTTP_OK
+                responseCode in 200..299
             } catch (e: Exception) {
                 e.printStackTrace()
                 false
             }
+        }
+    }
+
+    private fun fileToBase64(path: String?): String? {
+        if (path == null) return null
+        val file = File(path)
+        if (!file.exists()) return null
+        return try {
+            val bytes = file.readBytes()
+            Base64.encodeToString(bytes, Base64.NO_WRAP)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

@@ -28,13 +28,10 @@ class DisplayFragment : Fragment() {
         val ticketValidityEditText: TextInputEditText = view.findViewById(R.id.ticket_validity_edit_text)
         val saveValidityButton: Button = view.findViewById(R.id.save_validity_button)
         val allowNoLicensePlateSwitch: SwitchMaterial = view.findViewById(R.id.allow_no_license_plate_switch)
-        val renderSignatureOnPdfSwitch: SwitchMaterial = view.findViewById(R.id.render_signature_on_pdf_switch)
-
         welcomeHeadingEditText.setText(settingsManager.welcomeMessageHeading)
         welcomeBodyEditText.setText(settingsManager.welcomeMessageBody)
         ticketValidityEditText.setText(settingsManager.ticketValidityHours.toString())
         allowNoLicensePlateSwitch.isChecked = settingsManager.allowNoLicensePlate
-        renderSignatureOnPdfSwitch.isChecked = settingsManager.renderSignatureOnPdf
 
         saveWelcomeMessageButton.setOnClickListener {
             settingsManager.welcomeMessageHeading = welcomeHeadingEditText.text.toString()
@@ -56,9 +53,6 @@ class DisplayFragment : Fragment() {
             settingsManager.allowNoLicensePlate = isChecked
         }
 
-        renderSignatureOnPdfSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsManager.renderSignatureOnPdf = isChecked
-        }
 
         return view
     }

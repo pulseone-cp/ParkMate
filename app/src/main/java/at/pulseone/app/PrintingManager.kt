@@ -27,29 +27,28 @@ class PrintingManager(private val context: Context) {
 
     private val PRINTER_WIDTH_PX = 384 // 58mm at 203dpi
 
-    suspend fun printTicket(ticket: ParkingTicket) {
+    suspend fun printTicket(ticket: ParkingTicket): Boolean {
         val settingsManager = SettingsManager(context)
         val printerAddress = settingsManager.printerTarget
 
         if (printerAddress.isNullOrBlank()) {
-            // Handle case where no printer is set
-            return
+            return false
         }
 
         val bitmap = createTicketBitmap(ticket)
 
-        withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
+            var socket: android.bluetooth.BluetoothSocket? = null
             try {
                 val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
                 val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
                 val device = bluetoothAdapter?.getRemoteDevice(printerAddress)
 
                 if (device == null) {
-                    // Handle case where device is not found
-                    return@withContext
+                    return@withContext false
                 }
 
-                val socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
 
                 socket?.connect()
                 val outputStream: OutputStream? = socket?.outputStream
@@ -61,15 +60,22 @@ class PrintingManager(private val context: Context) {
                     command.addPrintAndFeedLines(3)
                     command.addCut(EscPosCommand.CUT_FEED)
                     outputStream.write(command.getCommand())
+                    outputStream.flush()
                 }
 
-                socket?.close()
+                true
             } catch (e: IOException) {
                 e.printStackTrace()
-                // Handle exceptions
+                false
             } catch (e: SecurityException) {
                 e.printStackTrace()
-                // Handle exceptions for missing Bluetooth permissions
+                false
+            } finally {
+                try {
+                    socket?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
             }
         }
     }

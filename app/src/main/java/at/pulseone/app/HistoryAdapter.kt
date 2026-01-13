@@ -14,7 +14,9 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -51,6 +53,7 @@ class HistoryAdapter(
 
         holder.viewButton.setOnClickListener {
             val intent = Intent(holder.itemView.context, TicketAssetsActivity::class.java)
+            intent.putExtra("TICKET_GUID", ticket.guid)
             ticket.signaturePath?.let {
                 val file = File(it)
                 if (file.exists()) {
@@ -69,9 +72,16 @@ class HistoryAdapter(
         }
 
         holder.printButton.setOnClickListener {
-            holder.itemView.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+            holder.itemView.findViewTreeLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
                 val printingManager = PrintingManager(holder.itemView.context)
-                printingManager.printTicket(ticket)
+                val success = printingManager.printTicket(ticket)
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        Toast.makeText(holder.itemView.context, "Ticket printed successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(holder.itemView.context, "Printing failed. Check printer settings.", Toast.LENGTH_LONG).show()
+                    }
+                }
             }
         }
 
