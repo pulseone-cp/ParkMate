@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadDepartments() {
         departments = settingsManager.departments?.toList() ?: emptyList()
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, departments)
+        val adapter = ArrayAdapter(this, R.layout.dropdown_item, departments)
         departmentAutoComplete.setAdapter(adapter)
 
         val defaultDepartment = settingsManager.defaultDepartment
