@@ -96,6 +96,18 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getBoolean("is_department_required", true)
         set(value) = sharedPreferences.edit().putBoolean("is_department_required", value).apply()
 
+    var autoDeleteEnabled: Boolean
+        get() = sharedPreferences.getBoolean("auto_delete_enabled", false)
+        set(value) = sharedPreferences.edit().putBoolean("auto_delete_enabled", value).apply()
+
+    var autoDeleteDays: Int
+        get() = sharedPreferences.getInt("auto_delete_days", 30)
+        set(value) = sharedPreferences.edit().putInt("auto_delete_days", value).apply()
+
+    var auditDeletionEnabled: Boolean
+        get() = sharedPreferences.getBoolean("audit_deletion_enabled", false)
+        set(value) = sharedPreferences.edit().putBoolean("audit_deletion_enabled", value).apply()
+
     fun getDepartmentPdfPath(department: String): String? {
         return sharedPreferences.getString("pdf_path_$department", null)
     }

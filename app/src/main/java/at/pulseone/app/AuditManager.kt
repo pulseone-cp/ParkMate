@@ -50,6 +50,45 @@ class AuditManager {
         }
     }
 
+    suspend fun reportDeletion(ticket: ParkingTicket, endpointUrl: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL(endpointUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
+                connection.doOutput = true
+
+                val payload = mapOf(
+                    "event" to "DELETE",
+                    "id" to ticket.id,
+                    "guid" to ticket.guid,
+                    "licensePlate" to ticket.licensePlate
+                )
+
+                val gson = GsonBuilder().create()
+                val json = gson.toJson(payload)
+                val bytes = json.toByteArray(Charsets.UTF_8)
+
+                connection.setFixedLengthStreamingMode(bytes.size)
+                connection.outputStream.use { os ->
+                    os.write(bytes)
+                    os.flush()
+                }
+
+                val responseCode = connection.responseCode
+                connection.disconnect()
+
+                responseCode in 200..299
+            } catch (e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+    }
+
     private fun fileToBase64(path: String?): String? {
         if (path == null) return null
         val file = File(path)

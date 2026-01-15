@@ -135,4 +135,12 @@
     <string name="toast_endpoint_test_success">Endpoint test successful</string>
     <string name="toast_endpoint_test_failed">Endpoint test failed</string>
     <string name="toast_enter_endpoint_url">Please enter an endpoint URL</string>
+
+    <!-- Data Governance -->
+    <string name="admin_title_data_governance">Data Governance</string>
+    <string name="label_auto_delete_old_items">Auto-delete old tickets</string>
+    <string name="label_retention_period_days">Retention period (days)</string>
+    <string name="label_audit_deletion_events">Send delete events to live audit</string>
+    <string name="button_save_settings">Save Settings</string>
+    <string name="toast_settings_saved">Settings saved</string>
 </resources>

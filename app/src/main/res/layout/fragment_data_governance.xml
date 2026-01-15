@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/admin_title_data_governance"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:layout_marginBottom="24dp" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/auto_delete_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_auto_delete_old_items"
+        android:layout_marginBottom="16dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/retention_period_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/label_retention_period_days"
+        android:layout_marginBottom="24dp"
+        app:helperTextEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/retention_period_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="4" />
+    </com.google.android.material.textfield.TextInputLayout>
+    
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/audit_deletion_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_audit_deletion_events"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/save_governance_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_save_settings" />
+
+</LinearLayout>

@@ -26,4 +26,20 @@ class ParkingTicketRepository(application: Application) {
     suspend fun findTicketByGuid(guid: String): ParkingTicket? {
         return parkingTicketDao.findByGuid(guid)
     }
+
+    suspend fun deleteOldTickets(days: Int, auditDeletionEnabled: Boolean = false, endpointUrl: String? = null) {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.add(java.util.Calendar.DAY_OF_YEAR, -days)
+        val cutoffDate = calendar.time
+
+        if (auditDeletionEnabled && !endpointUrl.isNullOrBlank()) {
+            val ticketsToDelete = parkingTicketDao.getOlderThan(cutoffDate)
+            val auditManager = AuditManager()
+            for (ticket in ticketsToDelete) {
+                auditManager.reportDeletion(ticket, endpointUrl)
+            }
+        }
+
+        parkingTicketDao.deleteOlderThan(cutoffDate)
+    }
 }

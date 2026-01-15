@@ -135,4 +135,12 @@
     <string name="toast_endpoint_test_success">Endpunkttest erfolgreich</string>
     <string name="toast_endpoint_test_failed">Endpunkttest fehlgeschlagen</string>
     <string name="toast_enter_endpoint_url">Bitte geben Sie eine Endpunkt-URL ein</string>
+
+    <!-- Data Governance -->
+    <string name="admin_title_data_governance">Datenverwaltung</string>
+    <string name="label_auto_delete_old_items">Alte Tickets automatisch löschen</string>
+    <string name="label_retention_period_days">Aufbewahrungsfrist (Tage)</string>
+    <string name="label_audit_deletion_events">Löschereignisse an Live-Audit senden</string>
+    <string name="button_save_settings">Einstellungen speichern</string>
+    <string name="toast_settings_saved">Einstellungen gespeichert</string>
 </resources>

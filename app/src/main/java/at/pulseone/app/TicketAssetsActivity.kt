@@ -11,11 +11,14 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TicketAssetsActivity : AppCompatActivity() {
 
@@ -44,6 +47,7 @@ class TicketAssetsActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val ticket = repository.findTicketByGuid(ticketGuid)
                 if (ticket != null) {
+                    populateTicketData(ticket)
                     val bitmap = printingManager.createTicketBitmap(ticket)
                     ticketImageView.setImageBitmap(bitmap)
                     ticketHeader.visibility = View.VISIBLE
@@ -104,6 +108,38 @@ class TicketAssetsActivity : AppCompatActivity() {
         } else {
             pdfHeader.visibility = View.GONE
             pdfRecyclerView.visibility = View.GONE
+        }
+    }
+
+    private fun populateTicketData(ticket: ParkingTicket) {
+        findViewById<View>(R.id.ticket_data_card).visibility = View.VISIBLE
+        val sdfDateTime = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+
+        findViewById<TextView>(R.id.tv_license_plate).text =
+            if (ticket.licensePlate.isBlank()) "BESUCHER" else ticket.licensePlate
+
+        findViewById<TextView>(R.id.tv_name).text = "${ticket.name} ${ticket.surname}"
+
+        val tvCompany = findViewById<TextView>(R.id.tv_company)
+        if (!ticket.company.isNullOrBlank()) {
+            tvCompany.text = ticket.company
+            tvCompany.visibility = View.VISIBLE
+        } else {
+            tvCompany.visibility = View.GONE
+        }
+
+        findViewById<TextView>(R.id.tv_department).text = getString(R.string.hint_department) + ": " + ticket.department
+        findViewById<TextView>(R.id.tv_timestamp).text = getString(R.string.ticket_label_time, sdfDateTime.format(ticket.timestamp))
+        findViewById<TextView>(R.id.tv_validity).text =
+            "Valid: ${sdfDateTime.format(ticket.validFrom)} - ${sdfDateTime.format(ticket.validUntil)}"
+
+        val tvStatus = findViewById<TextView>(R.id.tv_status)
+        if (ticket.isReported) {
+            tvStatus.text = "Status: Reported"
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.green))
+        } else {
+            tvStatus.text = "Status: Pending Upload"
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.red))
         }
     }
 }

@@ -1,9 +1,11 @@
 package at.pulseone.app
 
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -19,6 +21,7 @@ class ValidationHistoryAdapter(private val records: MutableList<ValidationRecord
         val statusTextView: TextView = itemView.findViewById(R.id.status_text_view)
         val validatedAtTextView: TextView = itemView.findViewById(R.id.validated_at_text_view)
         val expiresAtTextView: TextView = itemView.findViewById(R.id.expires_at_text_view)
+        val viewButton: Button = itemView.findViewById(R.id.view_ticket_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -45,10 +48,17 @@ class ValidationHistoryAdapter(private val records: MutableList<ValidationRecord
             "Valid" -> {
                 holder.statusIcon.setImageResource(R.drawable.ic_check_circle)
                 holder.statusTextView.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.green))
+                holder.viewButton.visibility = View.VISIBLE
+                holder.viewButton.setOnClickListener {
+                    val intent = Intent(holder.itemView.context, TicketAssetsActivity::class.java)
+                    intent.putExtra("TICKET_GUID", record.guid)
+                    holder.itemView.context.startActivity(intent)
+                }
             }
             else -> {
                 holder.statusIcon.setImageResource(R.drawable.ic_error)
                 holder.statusTextView.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.red))
+                holder.viewButton.visibility = View.GONE
             }
         }
     }

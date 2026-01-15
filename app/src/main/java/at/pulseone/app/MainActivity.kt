@@ -109,6 +109,16 @@ class MainActivity : AppCompatActivity() {
         settingsManager = SettingsManager(this)
         repository = ParkingTicketRepository(application)
         printingManager = PrintingManager(this)
+
+        if (settingsManager.autoDeleteEnabled) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                repository.deleteOldTickets(
+                    settingsManager.autoDeleteDays,
+                    settingsManager.auditDeletionEnabled,
+                    settingsManager.liveAuditEndpoint
+                )
+            }
+        }
         auditManager = AuditManager()
 
         nameEditText = findViewById(R.id.name_edit_text)

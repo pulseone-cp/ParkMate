@@ -22,4 +22,10 @@ interface ParkingTicketDao {
 
     @Query("SELECT * FROM parking_tickets WHERE guid = :guid")
     suspend fun findByGuid(guid: String): ParkingTicket?
+
+    @Query("SELECT * FROM parking_tickets WHERE timestamp < :date")
+    suspend fun getOlderThan(date: java.util.Date): List<ParkingTicket>
+
+    @Query("DELETE FROM parking_tickets WHERE timestamp < :date")
+    suspend fun deleteOlderThan(date: java.util.Date)
 }

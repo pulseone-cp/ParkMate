@@ -39,4 +39,11 @@
         android:layout_height="wrap_content"
         android:text="@string/admin_title_form_fields" />
 
+    <Button
+        android:id="@+id/data_governance_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/admin_title_data_governance" />
+
 </LinearLayout>
