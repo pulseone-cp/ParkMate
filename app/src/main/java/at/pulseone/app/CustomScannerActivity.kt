@@ -2,14 +2,18 @@ package at.pulseone.app
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Rect
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
+import com.journeyapps.barcodescanner.DefaultDecoderFactory
 import com.journeyapps.barcodescanner.camera.CameraSettings
 
 class CustomScannerActivity : AppCompatActivity() {
@@ -20,6 +24,8 @@ class CustomScannerActivity : AppCompatActivity() {
     private lateinit var torchButton: ImageButton
 
     private var isTorchOn = false
+    private var rearCameraId: String? = null
+    private var frontCameraId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,20 +40,42 @@ class CustomScannerActivity : AppCompatActivity() {
         }
 
         val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        if (cameraManager.cameraIdList.size <= 1) {
-            switchCameraButton.visibility = View.GONE
+        for (cameraId in cameraManager.cameraIdList) {
+            val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+            when (characteristics.get(CameraCharacteristics.LENS_FACING)) {
+                CameraCharacteristics.LENS_FACING_BACK -> rearCameraId = cameraId
+                CameraCharacteristics.LENS_FACING_FRONT -> frontCameraId = cameraId
+            }
         }
 
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            val settings = CameraSettings()
-            settings.isContinuousFocusEnabled = true
-            settings.requestedCameraId = 0 // Default to rear camera (ID 0)
-            barcodeScannerView.barcodeView.cameraSettings = settings
+        if (rearCameraId == null || frontCameraId == null) {
+            switchCameraButton.visibility = View.GONE
         }
 
         capture = CaptureManager(this, barcodeScannerView)
         capture.initializeFromIntent(intent, savedInstanceState)
-        capture.decode()
+
+        // 1. Only scan for QR codes to be faster
+        val formats = listOf(BarcodeFormat.QR_CODE)
+        barcodeScannerView.barcodeView.decoderFactory = DefaultDecoderFactory(formats)
+
+        // 2. Configure camera settings for continuous focus
+        barcodeScannerView.barcodeView.cameraSettings.apply {
+            isContinuousFocusEnabled = true
+            isAutoFocusEnabled = true
+            focusMode = CameraSettings.FocusMode.CONTINUOUS
+            requestedCameraId = rearCameraId?.toIntOrNull() ?: 0 // Start with the rear camera
+        }
+
+        // 3. Limit the decoding area to a central square for much faster processing.
+        // We post this to ensure the view has been measured and laid out.
+        barcodeScannerView.post {
+            val size = (barcodeScannerView.width * 0.6).toInt() // Define a square that's 60% of the view width
+            val left = (barcodeScannerView.width - size) / 2
+            val top = (barcodeScannerView.height - size) / 2
+            val framingRect = Rect(left, top, left + size, top + size)
+        }
+
 
         val cancelButton: Button = findViewById(R.id.cancel_button)
         cancelButton.setOnClickListener { finish() }
@@ -61,15 +89,16 @@ class CustomScannerActivity : AppCompatActivity() {
     }
 
     private fun switchCamera() {
+        if (rearCameraId == null || frontCameraId == null) return
+
         barcodeScannerView.pause()
         val settings = barcodeScannerView.barcodeView.cameraSettings
 
-        // Toggle between camera 0 (rear) and 1 (front)
-        if (settings.requestedCameraId == 0) {
-            settings.requestedCameraId = 1
-        } else {
-            settings.requestedCameraId = 0
-        }
+        val currentId = settings.requestedCameraId
+        val rearIdInt = rearCameraId!!.toInt()
+        val frontIdInt = frontCameraId!!.toInt()
+
+        settings.requestedCameraId = if (currentId == rearIdInt) frontIdInt else rearIdInt
 
         barcodeScannerView.barcodeView.cameraSettings = settings
         barcodeScannerView.resume()
@@ -78,16 +107,20 @@ class CustomScannerActivity : AppCompatActivity() {
     private fun toggleTorch() {
         if (isTorchOn) {
             barcodeScannerView.setTorchOff()
-            isTorchOn = false
         } else {
             barcodeScannerView.setTorchOn()
-            isTorchOn = true
         }
+        isTorchOn = !isTorchOn
     }
 
     override fun onResume() {
         super.onResume()
-        capture.onResume()
+        try {
+            capture.onResume()
+            capture.decode()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onPause() {
