@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 
 class PrintingFragment : Fragment() {
@@ -48,6 +49,12 @@ class PrintingFragment : Fragment() {
         val setDefaultPrinterButton: Button = view.findViewById(R.id.set_default_printer_button)
         val imprintEditText: TextInputEditText = view.findViewById(R.id.imprint_edit_text)
         val saveImprintButton: Button = view.findViewById(R.id.save_imprint_button)
+        val enablePrintingSwitch: SwitchMaterial = view.findViewById(R.id.enable_printing_switch)
+
+        enablePrintingSwitch.isChecked = settingsManager.isPrintingEnabled
+        enablePrintingSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.isPrintingEnabled = isChecked
+        }
 
         adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, printerList.map { it.first })
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

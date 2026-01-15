@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -264,7 +265,7 @@ class MainActivity : AppCompatActivity() {
                 // Print in a parallel thread (coroutine) "hoping for the best"
                 lifecycleScope.launch(Dispatchers.IO) {
                     val printSuccess = printingManager.printTicket(newTicket)
-                    if (!printSuccess) {
+                    if (!printSuccess && settingsManager.isPrintingEnabled && !settingsManager.printerTarget.isNullOrBlank()) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@MainActivity, R.string.toast_printing_failed, Toast.LENGTH_LONG).show()
                         }
@@ -281,10 +282,45 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     departmentAutoComplete.text?.clear()
                 }
+
+                showSuccessAnimation()
             } finally {
                 loadingOverlay.visibility = View.GONE
             }
         }
+    }
+
+    private fun showSuccessAnimation() {
+        val successIcon = findViewById<ImageView>(R.id.success_animation_view)
+        successIcon.visibility = View.VISIBLE
+        successIcon.alpha = 0f
+        successIcon.scaleX = 0.5f
+        successIcon.scaleY = 0.5f
+
+        successIcon.animate()
+            .alpha(1f)
+            .scaleX(1.2f)
+            .scaleY(1.2f)
+            .setDuration(500)
+            .withEndAction {
+                successIcon.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .withEndAction {
+                        successIcon.postDelayed({
+                            successIcon.animate()
+                                .alpha(0f)
+                                .setDuration(500)
+                                .withEndAction {
+                                    successIcon.visibility = View.GONE
+                                }
+                                .start()
+                        }, 1000)
+                    }
+                    .start()
+            }
+            .start()
     }
 
     private fun checkAgreementAndProceed(

@@ -29,10 +29,15 @@ class PrintingManager(private val context: Context) {
 
     suspend fun printTicket(ticket: ParkingTicket): Boolean {
         val settingsManager = SettingsManager(context)
+        
+        if (!settingsManager.isPrintingEnabled) {
+            return true // Printing is disabled by user, consider it "successful" or at least not an error
+        }
+
         val printerAddress = settingsManager.printerTarget
 
         if (printerAddress.isNullOrBlank()) {
-            return false
+            return true // No printer configured, just don't print (optional)
         }
 
         val bitmap = createTicketBitmap(ticket)

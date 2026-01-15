@@ -96,6 +96,10 @@ class SettingsManager(context: Context) {
         get() = sharedPreferences.getBoolean("is_department_required", true)
         set(value) = sharedPreferences.edit().putBoolean("is_department_required", value).apply()
 
+    var isPrintingEnabled: Boolean
+        get() = sharedPreferences.getBoolean("is_printing_enabled", true)
+        set(value) = sharedPreferences.edit().putBoolean("is_printing_enabled", value).apply()
+
     var autoDeleteEnabled: Boolean
         get() = sharedPreferences.getBoolean("auto_delete_enabled", false)
         set(value) = sharedPreferences.edit().putBoolean("auto_delete_enabled", value).apply()

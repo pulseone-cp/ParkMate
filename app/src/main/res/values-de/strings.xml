@@ -95,6 +95,7 @@
     <string name="toast_bluetooth_unavailable">Bluetooth ist nicht verfügbar</string>
     <string name="toast_enable_bluetooth">Bitte aktivieren Sie Bluetooth</string>
     <string name="toast_printer_save_error">Drucker konnte nicht gespeichert werden</string>
+    <string name="label_enable_printing">Drucken aktivieren</string>
 
     <!-- Users Admin -->
     <string name="hint_current_pin">Aktueller PIN</string>
