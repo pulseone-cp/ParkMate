@@ -45,6 +45,7 @@
     <string name="label_form_fields">Form Fields</string>
     <string name="admin_title_form_fields">Form Fields</string>
     <string name="admin_title_validate">Validate</string>
+    <string name="admin_title_test">Test</string>
 
     <!-- Departments Admin -->
     <string name="hint_new_department">New Department</string>

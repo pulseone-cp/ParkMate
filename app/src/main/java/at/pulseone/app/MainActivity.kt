@@ -143,6 +143,13 @@ class MainActivity : AppCompatActivity() {
         setupLicensePlateInputFilter()
         setupFormFields()
 
+        val sharedPreferences = getSharedPreferences("settings", 0)
+        if (sharedPreferences.getBoolean("show_test_print_button", false)) {
+            testPrintButton.visibility = View.VISIBLE
+        } else {
+            testPrintButton.visibility = View.GONE
+        }
+
         confirmButton.setOnClickListener {
             val name = nameEditText.text.toString()
             val surname = surnameEditText.text.toString()
@@ -204,6 +211,12 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         loadWelcomeMessage()
         loadDepartments()
+        val sharedPreferences = getSharedPreferences("settings", 0)
+        if (sharedPreferences.getBoolean("show_test_print_button", false)) {
+            testPrintButton.visibility = View.VISIBLE
+        } else {
+            testPrintButton.visibility = View.GONE
+        }
     }
 
     private fun loadDepartments() {

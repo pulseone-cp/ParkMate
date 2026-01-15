@@ -21,6 +21,7 @@ class SettingsFragment : Fragment() {
         val signatureButton: Button = view.findViewById(R.id.signature_button)
         val formFieldsButton: Button = view.findViewById(R.id.form_fields_button)
         val dataGovernanceButton: Button = view.findViewById(R.id.data_governance_button)
+        val testButton: Button = view.findViewById(R.id.test_button)
 
         usersButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -60,6 +61,13 @@ class SettingsFragment : Fragment() {
         dataGovernanceButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, DataGovernanceFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        testButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TestFragment())
                 .addToBackStack(null)
                 .commit()
         }

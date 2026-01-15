@@ -37,6 +37,7 @@
     <string name="admin_title_printing">Drucken</string>
     <string name="admin_title_departments">Abteilungen</string>
     <string name="admin_title_display">Anzeige</string>
+    <string name="admin_title_test">Test</string>
     <string name="admin_exit">Admin-Menü verlassen</string>
     <string name="button_scan_qr">QR-Code scannen</string>
     <string name="button_clear_history">Verlauf löschen</string>
